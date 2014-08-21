@@ -15,8 +15,8 @@ endif(NOT IFEM_CONFIGURED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 
-include_directories(${IFEM_INCLUDES} ../Common ../AdvectionDiffusion
-                    ../Elasticity  ../Elasticity/Linear)
+include_directories(${IFEM_INCLUDES} ../Common
+                    ../Elasticity ../Elasticity/Linear)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -31,18 +31,12 @@ if (NOT IFEM_PRECONFIGURED)
   add_subdirectory(../Common CommonIFEM.dir)
 endif(NOT IFEM_PRECONFIGURED)
 
-add_executable(ThermoElasticity ../AdvectionDiffusion/AdvectionDiffusion.C
-                                ../AdvectionDiffusion/AdvectionDiffusionBDF.C
-                                ../Elasticity/ElasticBase.C
-                                ../Elasticity/Elasticity.C
-                                ../Elasticity/LinIsotropic.C
-                                ../Elasticity/SIMElasticity.C
-                                ../Elasticity/Linear/AnalyticSolutions.C
-                                ../Elasticity/Linear/LinearElasticity.C
-                                ../Elasticity/Linear/SIMLinEl2D.C
-                                ../Elasticity/Linear/SIMLinEl3D.C
-                                ThermoElasticity.C
-                                main_ThermoElasticity.C)
+file(GLOB ThermoEl_SRCS *.C)
+file(GLOB LinEl_SRCS ../Elasticity/*.C
+                     ../Elasticity/Linear/LinearElasticity.C
+                     ../Elasticity/Dynamic/SIMLinEl.C)
+
+add_executable(ThermoElasticity ${ThermoEl_SRCS} ${LinEl_SRCS})
 
 target_link_libraries(ThermoElasticity ${IFEM_LIBRARIES} CommonIFEM)
 

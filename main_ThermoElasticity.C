@@ -16,8 +16,7 @@
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMSolver.h"
-#include "AdvectionDiffusionBDF.h"
-#include "SIMAD.h"
+#include "SIMHeatEquation.h"
 #include "SIMThermoElasticity.h"
 #include "SIMElasticityWrap.h"
 #include "HDF5Writer.h"
@@ -37,11 +36,10 @@
   template<class Dim>
 int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
 {
-  SIMAD<Dim> tempModel(new AdvectionDiffusionBDF(Dim::dimension,
-                                                 tIt==TimeIntegration::BE?1:2), true);
+  SIMHeatEquation<Dim> tempModel(tIt==TimeIntegration::BE?1:2);
   SIMElasticityWrap<Dim> solidModel;
-  SIMThermoElasticity< SIMAD<Dim>, SIMElasticityWrap<Dim> > model(tempModel, solidModel);
-  SIMSolver< SIMThermoElasticity< SIMAD<Dim>, SIMElasticityWrap<Dim> > > solver(model);
+  SIMThermoElasticity< SIMHeatEquation<Dim>, SIMElasticityWrap<Dim> > model(tempModel, solidModel);
+  SIMSolver< SIMThermoElasticity< SIMHeatEquation<Dim>, SIMElasticityWrap<Dim> > > solver(model);
 
   if (ConfigureSIM(tempModel, infile)  ||
       ConfigureSIM(solidModel, infile) || !solver.read(infile))

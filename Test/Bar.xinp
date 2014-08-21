@@ -21,24 +21,24 @@
     </topologysets>
   </geometry>
 
-  <advectiondiffusion>
-    <advectionfield>0|0</advectionfield>
-    <kappa>0.1</kappa>
+  <thermoelasticity>
+    <isotropic E="1.0e5" nu="0.0" alpha="1.2e-7" cp="1.0" kappa="0.1" rho="1.0"/>
+  </thermoelasticity>
+
+  <heatequation>
     <boundaryconditions>
       <dirichlet set="Bottom" comp="1">300.0</dirichlet>
       <dirichlet set="Top" comp="1">300.0</dirichlet>
    </boundaryconditions>
- </advectiondiffusion>
+  </heatequation>
 
- <elasticity>
-   <isotropic E="1.0e5" nu="0.0" alpha="1.2e-7"/>
-   <boundaryconditions>
-     <dirichlet set="Left" comp="1"/>
-     <dirichlet set="Top" comp="2"/>
-   </boundaryconditions>
-   <initialtemperature>150.0</initialtemperature>
- </elasticity>
+  <elasticity>
+    <boundaryconditions>
+      <dirichlet set="Left" comp="1"/>
+      <dirichlet set="Top" comp="2"/>
+    </boundaryconditions>
+    <initialtemperature>150.0</initialtemperature>
+  </elasticity>
 
- <timestepping start="0" end="1.0" dt="0.1"/>
-
+  <timestepping start="0" end="1.0" dt="0.1"/>
 </simulation>
