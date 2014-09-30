@@ -49,8 +49,11 @@ public:
 
     for (int i = 0; i < this->S1.getNoPatches(); i++) {
       Vector locvec;
-      this->S1.getPatch(i+1)->evaluate(f, locvec);
-      this->S1.injectPatchSolution(this->S1.getSolution(), locvec, i, 1);
+      int loc = this->S1.getLocalPatchIndex(i+1);
+      if (loc > 0) {
+        this->S1.getPatch(loc)->evaluate(f, locvec);
+        this->S1.getPatch(loc)->injectNodeVec(locvec, this->S1.getSolution(), 1);
+      }
     }
 
     return true;

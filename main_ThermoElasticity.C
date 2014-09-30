@@ -49,15 +49,15 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
     SIM::handleRestart(model, solver, restartfile, tempModel.getDumpInterval(),
                        TimeIntegration::Steps(tIt));
 
+  model.setupDependencies();
+  model.init(solver.getTimePrm());
+
   DataExporter* exporter=NULL;
   if (tempModel.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(model, solver, tempModel.opt.hdf5,
                                      restartfile && tempModel.opt.hdf5 == restartfile,
                                      tempModel.getDumpInterval(),
                                      TimeIntegration::Steps(tIt));
-
-  model.setupDependencies();
-  model.init(solver.getTimePrm());
 
   if (!solver.solveProblem(infile, exporter))
     return 5;
