@@ -58,6 +58,14 @@ public:
 
   //! \brief Defines the flux function.
   void setFlux(RealFunc* f) { flux = f; }
+
+  //! \brief Returns the name of the primary solution field.
+  //! \param[in] prefix Name prefix
+  virtual const char* getField1Name(size_t, const char* prefix = 0) const;
+  //! \brief Returns the name of a secondary solution field component.
+  //! \param[in] i Field component index
+  //! \param[in] prefix Name prefix for all components
+  virtual const char* getField2Name(size_t i, const char* prefix = 0) const;
 protected:
   size_t nsd;                //!< Number of spatial dimensions
   TimeIntegration::BDF bdf;  //!< BDF helper class

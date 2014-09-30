@@ -87,3 +87,32 @@ bool HeatEquation::evalBou (LocalIntegral& elmInt,
 
   return true;
 }
+
+
+const char* HeatEquation::getField1Name (size_t, const char* prefix) const
+{
+  if (!prefix)
+    return "theta";
+
+  static std::string name;
+  name = prefix + std::string(" theta");
+
+  return name.c_str();
+}
+
+
+const char* HeatEquation::getField2Name (size_t i,
+                                         const char* prefix) const
+{
+  if (i > 2)
+    return 0;
+
+  static const char* s[3] = { "theta_x", "theta_y", "theta_z" };
+  if (!prefix)
+    return s[i];
+
+  static std::string name;
+  name = prefix + std::string(" ") + s[i];
+
+  return name.c_str();
+}
