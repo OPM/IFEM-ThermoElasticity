@@ -16,9 +16,12 @@
 #define _SIM_ELASTICITY_WRAP_H_
 
 #include "SIMLinEl.h"
+#include "SIMSolver.h"
 #include "ThermoElasticity.h"
 #include "DataExporter.h"
+#include "Profiler.h"
 #include "TimeStep.h"
+#include "ASMstruct.h"
 
 
 /*!

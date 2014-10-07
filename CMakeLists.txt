@@ -15,7 +15,7 @@ endif(NOT IFEM_CONFIGURED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 
-include_directories(${IFEM_INCLUDES} ../Common
+include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
                     ../Elasticity ../Elasticity/Linear)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
@@ -31,14 +31,18 @@ if (NOT IFEM_PRECONFIGURED)
   add_subdirectory(../Common CommonIFEM.dir)
 endif(NOT IFEM_PRECONFIGURED)
 
-file(GLOB ThermoEl_SRCS *.C)
 file(GLOB LinEl_SRCS ../Elasticity/*.C
                      ../Elasticity/Linear/LinearElasticity.C
                      ../Elasticity/Dynamic/SIMLinEl.C)
 
-add_executable(ThermoElasticity ${ThermoEl_SRCS} ${LinEl_SRCS})
+set(ThermoEl_SRCS HeatEquation.C
+                  ThermoElasticity.C)
 
-target_link_libraries(ThermoElasticity ${IFEM_LIBRARIES} CommonIFEM)
+add_library(CommonThermo ${LinEl_SRCS} ${ThermoEl_SRCS})
+
+add_executable(ThermoElasticity main_ThermoElasticity.C)
+
+target_link_libraries(ThermoElasticity CommonThermo ${IFEM_LIBRARIES} CommonIFEM)
 
 # Installation
 install(TARGETS ThermoElasticity DESTINATION bin)
@@ -49,10 +53,6 @@ enable_testing()
 # Generate regtest script with correct paths
 configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/regtest.sh.in
                regtest.sh)
-configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/doregtests.sh.in
-  doregtests.sh @ONLY)
-configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/check-patchseries.sh.in
-               check-patchseries.sh)
 
 if(IFEM_USE_PARALLEL_PETSC)
   # Add parallel tests here
@@ -63,3 +63,17 @@ else(IFEM_USE_PARALLEL_PETSC)
     ifem_add_test(${TESTFILE} ThermoElasticity)
   endforeach()
 endif(IFEM_USE_PARALLEL_PETSC)
+list(APPEND TEST_APPS ThermoElasticity)
+
+# Unit tests
+IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
+                  ${PROJECT_SOURCE_DIR}/Test
+                  ThermoElasticity
+                  CommonThermo ${IFEM_LIBRARIES})
+
+if(IFEM_COMMON_APP_BUILD)
+  set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
+  set(UNIT_TEST_NUMBER ${UNIT_TEST_NUMBER} PARENT_SCOPE)
+else()
+  add_check_target()
+endif()

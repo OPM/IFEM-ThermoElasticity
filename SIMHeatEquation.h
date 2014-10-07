@@ -21,6 +21,8 @@
 #include "InitialConditionHandler.h"
 #include "Profiler.h"
 #include "Property.h"
+#include "SIMoutput.h"
+#include "SIMSolver.h"
 #include "TimeStep.h"
 #include "Utilities.h"
 #include "tinyxml.h"
