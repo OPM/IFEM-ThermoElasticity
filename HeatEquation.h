@@ -51,10 +51,14 @@ public:
   virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
                        const Vec3& X, const Vec3& normal) const;
 
+  //! \brief Advance time stepping scheme.
   virtual void advanceStep() { bdf.advanceStep(); }
 
   //! \brief Defines the material properties.
   virtual void setMaterial(Material* material) { mat = material; }
+
+  //! \brief Obtain the current material.
+  const Material* getMaterial() const { return mat; }
 
   //! \brief Defines the flux function.
   void setFlux(RealFunc* f) { flux = f; }
