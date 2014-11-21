@@ -2,7 +2,6 @@
 
 <simulation>
   <geometry>
-    <patchfile type="bsplines">square.g2</patchfile>
     <raiseorder patch="1" u="1" v="1"/>
     <refine type="uniform" patch="1" u="15" v="15"/>
     <topologysets>
@@ -18,6 +17,9 @@
       <set name="Right" type="edge">
         <item patch="1">2</item>
       </set>
+      <set name="Whole" type="face">
+        <item patch="1"/>
+      </set>
     </topologysets>
   </geometry>
 
@@ -31,7 +33,9 @@
       <dirichlet set="Bottom" comp="1">300.0</dirichlet>
       <dirichlet set="Top" comp="1">300.0</dirichlet>
       <neumann set="Left"/>
-   </boundaryconditions>
+    </boundaryconditions>
+    <heatflux set="Bottom"/>
+    <storedenergy set="Whole"/>
   </heatequation>
 
   <elasticity>

@@ -148,3 +148,23 @@ bool HeatEquationFlux::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
 
   return true;
 }
+
+
+bool HeatEquationStoredEnergy::evalInt (LocalIntegral& elmInt,
+                                        const FiniteElement& fe,
+                                        const TimeDomain& time,
+                                        const Vec3& X) const
+{
+  HeatEquation& problem = static_cast<HeatEquation&>(myProblem);
+  ElmNorm& elmNorm = static_cast<ElmNorm&>(elmInt);
+
+  const Material* mat = problem.getMaterial();
+
+  double theta = fe.N.dot(elmNorm.vec[0]);
+  double theta0 = problem.initialTemperature(X);
+  double rhocp = mat?mat->getMassDensity(X)*mat->getHeatCapacity(theta):1.0;
+
+  elmNorm[0] = rhocp*(theta-theta0)*fe.detJxW;
+
+  return true;
+}

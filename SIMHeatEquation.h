@@ -120,19 +120,22 @@ public:
         mVec.push_back(new LinIsotropic(false,false));
         mVec.back()->parse(child);
       }
-      else if (!strcasecmp(child->Value(),"heatflux")) {
+      else if (!strcasecmp(child->Value(),"heatflux") ||
+               !strcasecmp(child->Value(),"storedenergy")) {
         BoundaryFlux flux;
         utl::getAttribute(child,"set",flux.set);
         utl::getAttribute(child,"file",flux.file);
         utl::getAttribute(child,"stride",flux.timeIncr);
         if (flux.set.empty())
           utl::getAttribute(child,"code",flux.code);
-        if (!flux.set.empty())
-          flux.code = this->getUniquePropertyCode(flux.set,(fluxes.size()+1)*1000);
-        std::cout << "code " << flux.code << std::endl;
-        fluxes.push_back(flux);
-      }
-      else
+        if (!flux.set.empty()) {
+          size_t oldcode = strcasecmp(child->Value(),"heatflux") ? senergy.size() :
+                                                                   fluxes.size();
+          flux.code = this->getUniquePropertyCode(flux.set,(oldcode+1)*1000);
+        }
+        strcasecmp(child->Value(),"heatflux") ? senergy.push_back(flux) :
+                                                fluxes.push_back(flux);
+      } else
         this->Dim::parse(child);
     }
 
@@ -215,13 +218,27 @@ public:
 
   bool postSolve(const TimeStep& tp,bool) {return true;}
 
-  bool saveFlux(const BoundaryFlux& bf, const TimeStep& tp)
+  //! \brief Compute and save a boundary heat flux or the stored energy in a volume
+  //! \param[in] bf Description of integration domain
+  //! \param[in] tp Time stepping information
+  //! \param[in] flux True to calculate a heat flux, false for stored energy
+  bool saveIntegral(const BoundaryFlux& bf, const TimeStep& tp, bool flux)
   {
     if (bf.code == 0 || bf.timeIncr < 1 || bf.set.empty()) return true;
     if (tp.step < 1 || (tp.step-1)%bf.timeIncr > 0) return true;
 
-    Vector force(SIM::getBoundaryForce(temperature,this,bf.code,tp.time));
-    if (force.size() == 0)
+    Vector integral;
+
+    if (flux)
+      integral = SIM::getBoundaryForce(temperature,this,bf.code,tp.time);
+    else {
+      HeatEquationStoredEnergy energy(he);
+      energy.initBuffer(this->getNoElms());
+      SIM::integrate(temperature,this,bf.code,tp.time,&energy);
+      energy.assemble(integral);
+    }
+
+    if (integral.size() == 0)
       return false;
 
     std::ostream* os = &std::cout;
@@ -236,14 +253,20 @@ public:
 
       char line[256];
       if (tp.step == 1) {
-        *os <<"# Heat flux over surface with code "<< bf.code << std::endl;
+        if (flux) {
+          *os <<"# Heat flux over surface with code "<< bf.code << std::endl;
+          sprintf(line,"#%9s %11s\n", "time","Flux");
+        } else {
+          *os <<"# Stored energy in volumes with code "<< bf.code << std::endl;
+          sprintf(line,"#%9s %11s\n", "time","Energy");
+        }
         sprintf(line,"#%9s %11s\n", "time","Flux");
         *os << line;
       }
 
       sprintf(line,"%10.6f", tp.time.t);
       str << line;
-      sprintf(line," %11.6g", force[0]);
+      sprintf(line," %11.6g", integral[0]);
       str << line;
       str << '\n';
     }
@@ -268,7 +291,10 @@ public:
     PROFILE1("SIMHeatEquation::saveStep");
 
     for (size_t i=0; i< fluxes.size(); ++i)
-      saveFlux(fluxes[i],tp);
+      saveIntegral(fluxes[i],tp,true);
+
+    for (size_t i=0; i< senergy.size(); ++i)
+      saveIntegral(senergy[i],tp,false);
 
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0)
       return true;
@@ -316,6 +342,8 @@ public:
   }
 #endif
 
+  //! \brief Set the function for the initial temperature field
+  //! \param f The function
   void setInitialTemperature(const RealFunc* f) { he.setInitialTemperature(f); }
 
 protected:
@@ -356,13 +384,14 @@ protected:
 
 
 private:
-  HeatEquation he; //!< Integrand
+  HeatEquation he;             //!< Integrand
   std::vector<Material*> mVec; //!< Material data
 
-  Vectors temperature;
+  Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
 
-  std::vector<BoundaryFlux> fluxes; //!< Heat fluxes to calculate
+  std::vector<BoundaryFlux> fluxes;  //!< Heat fluxes to calculate
+  std::vector<BoundaryFlux> senergy; //!< Stored energies to calculate
 };
 
 

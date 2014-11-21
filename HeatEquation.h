@@ -71,7 +71,11 @@ public:
   //! \param[in] prefix Name prefix for all components
   virtual const char* getField2Name(size_t i, const char* prefix = 0) const;
 
+  //! \brief Set the function for the initial temperature field
+  //! \param f The function
   void setInitialTemperature(const RealFunc* f)  { init = f; }
+
+  //! \brief Returns number of spatial dimensions.
   size_t getNoSpaceDim() const { return nsd; }
 
   //! \brief Returns a pointer to an Integrand for boundary force evaluation.
@@ -80,6 +84,11 @@ public:
   //! \param[in] X0 Reference point for torque computation
   //! \param[in] asol Pointer to analytical solution field (optional)
   virtual ForceBase* getForceIntegrand(const Vec3* X0, AnaSol* asol = 0) const;
+
+  //! \brief Returns the initial temperature in a point.
+  //! \param[in] X The coordinate of the point.
+  //! \returns Initial temperature
+  double initialTemperature(const Vec3& X) const { return init?(*init)(X):0.0; }
 
 protected:
   size_t nsd;                //!< Number of spatial dimensions
@@ -116,6 +125,68 @@ public:
 
   //! \brief Returns the number of force components.
   virtual size_t getNoComps() const { return 1; }
+};
+
+class HeatEquationStoredEnergy : public ForceBase
+{
+public:
+  //! \brief Constructor for global force resultant integration.
+  //! \param[in] p The heat equation problem to evaluate fluxes for
+  HeatEquationStoredEnergy(HeatEquation& p)
+    : ForceBase(p) {}
+
+  //! \brief Empty destructor.
+  virtual ~HeatEquationStoredEnergy() {}
+
+  //! \brief Evaluates the integrand at a boundary point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] time Parameters for nonlinear and time-dependent simulations
+  //! \param[in] X Cartesian coordinates of current integration point
+  //! \param[in] normal Boundary normal vector at current integration point
+  virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+                       const TimeDomain& time, const Vec3& X) const;
+
+  //! \brief Returns the number of force components.
+  virtual size_t getNoComps() const { return 1; }
+
+    //! \brief Returns a local integral contribution object for the given element.
+  //! \param[in] nen1 Number of nodes on element for basis 1
+  //! \param[in] nen2 Number of nodes on element for basis 2
+  //! \param[in] iEl Global element number (1-based)
+  //! \param[in] neumann Whether or not we are assembling Neumann BCs
+  //!
+  //! \details This form is used for mixed formulations only.
+  //! The default implementation just forwards to the single-basis version.
+  //! Reimplement this method if your mixed formulation requires specialized
+  //! local integral objects.
+  virtual LocalIntegral* getLocalIntegral(size_t nen1, size_t nen2, size_t iEl,
+                                          bool neumann = false) const
+  {
+    return this->getLocalIntegral(nen1,iEl,neumann);
+  }
+
+  //! \brief Initializes current element for numerical integration.
+  //! \param[in] MNPC Matrix of nodal point correspondance for current element
+  //! \param[in] fe Nodal and integration point data for current element
+  //! \param[in] X0 Cartesian coordinates of the element center
+  //! \param[in] nPt Number of integration points in this element
+  //! \param elmInt Local integral for element
+  //!
+  //! \details This method is invoked once before starting the numerical
+  //! integration loop over the Gaussian quadrature points over an element.
+  //! It is supposed to perform all the necessary internal initializations
+  //! needed before the numerical integration is started for current element.
+  //! Reimplement this method for problems requiring the element center and/or
+  //! the number of integration points during/before the integrand evaluations.
+  virtual bool initElement(const std::vector<int>& MNPC,
+			   const FiniteElement& fe,
+			   const Vec3& X0, size_t nPt,
+			   LocalIntegral& elmInt)
+  { return myProblem.initElement(MNPC, elmInt); }
+
+  //! \brief This is a volume integrand
+  virtual bool hasInteriorTerms() const { return true; }
 };
 
 #endif
