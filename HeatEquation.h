@@ -70,11 +70,50 @@ public:
   //! \param[in] i Field component index
   //! \param[in] prefix Name prefix for all components
   virtual const char* getField2Name(size_t i, const char* prefix = 0) const;
+
+  size_t getNoSpaceDim() const { return nsd; }
+
+  //! \brief Returns a pointer to an Integrand for boundary force evaluation.
+  //! \note The Integrand is allocated dynamically and has to be deleted
+  //! manually when leaving the scope of the pointer returned.
+  //! \param[in] X0 Reference point for torque computation
+  //! \param[in] asol Pointer to analytical solution field (optional)
+  virtual ForceBase* getForceIntegrand(const Vec3* X0, AnaSol* asol = 0) const;
+
 protected:
   size_t nsd;                //!< Number of spatial dimensions
   TimeIntegration::BDF bdf;  //!< BDF helper class
   Material* mat;             //!< Material parameters
   RealFunc* flux;            //!< Pointer to the flux field
+};
+
+/*!
+  \brief Class representing the integrand for computing boundary heat fluxes.
+*/
+
+class HeatEquationFlux : public ForceBase
+{
+public:
+  //! \brief Constructor for global force resultant integration.
+  //! \param[in] p The heat equation problem to evaluate fluxes for
+  HeatEquationFlux(HeatEquation& p)
+    : ForceBase(p) {}
+
+  //! \brief Empty destructor.
+  virtual ~HeatEquationFlux() {}
+
+  //! \brief Evaluates the integrand at a boundary point.
+  //! \param elmInt The local integral object to receive the contributions
+  //! \param[in] fe Finite element data of current integration point
+  //! \param[in] time Parameters for nonlinear and time-dependent simulations
+  //! \param[in] X Cartesian coordinates of current integration point
+  //! \param[in] normal Boundary normal vector at current integration point
+  virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
+                       const TimeDomain& time,
+                       const Vec3& X, const Vec3& normal) const;
+
+  //! \brief Returns the number of force components.
+  virtual size_t getNoComps() const { return 1; }
 };
 
 #endif

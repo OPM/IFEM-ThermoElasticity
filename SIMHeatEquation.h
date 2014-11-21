@@ -17,6 +17,7 @@
 #include "AnaSol.h"
 #include "ASMstruct.h"
 #include "DataExporter.h"
+#include "ForceIntegrator.h"
 #include "Functions.h"
 #include "InitialConditionHandler.h"
 #include "Profiler.h"
@@ -28,6 +29,7 @@
 #include "tinyxml.h"
 #include "HeatEquation.h"
 #include "LinIsotropic.h"
+#include <fstream>
 
 
 /*!
@@ -38,6 +40,29 @@
 
 template<class Dim> class SIMHeatEquation : public Dim
 {
+  //! \brief Struct containing parameters for boundary heat flux calculation.
+  struct BoundaryFlux
+  {
+    std::string file; //!< Name of output file for boundary flux calculation
+    std::string set;  //!< Name of topology set for boundary flux calculation
+    int code;         //!< Code identifying the boundary for flux calculation
+    int timeIncr;     //!< Time level increment for boundary flux calculation
+    //! \brief Default constructor.
+    BoundaryFlux(int c = 0) : code(c), timeIncr(1) {}
+    //! \brief Constructor naming the topology set for force calculation.
+    BoundaryFlux(const std::string& s) : set(s), code(0), timeIncr(1) {}
+  };
+
+  //! \brief Helper class for searching among BoundaryForce objects.
+  class hasCode
+  {
+    int myCode; //!< The property code to compare with
+    public:
+      //! \brief Constructor initializing the property code to search for.
+      hasCode(int code) : myCode(abs(code)) {}
+      //! \brief Returns \e true if the BoundaryForce \a b has the code \a myCode.
+      bool operator()(const BoundaryFlux& b) { return abs(b.code) == myCode; }
+  };
 public:
   struct SetupProps
   {
@@ -94,6 +119,18 @@ public:
         std::cout <<"\tMaterial code "<< code <<":";
         mVec.push_back(new LinIsotropic(false,false));
         mVec.back()->parse(child);
+      }
+      else if (!strcasecmp(child->Value(),"heatflux")) {
+        BoundaryFlux flux;
+        utl::getAttribute(child,"set",flux.set);
+        utl::getAttribute(child,"file",flux.file);
+        utl::getAttribute(child,"stride",flux.timeIncr);
+        if (flux.set.empty())
+          utl::getAttribute(child,"code",flux.code);
+        if (!flux.set.empty())
+          flux.code = this->getUniquePropertyCode(flux.set,(fluxes.size()+1)*1000);
+        std::cout << "code " << flux.code << std::endl;
+        fluxes.push_back(flux);
       }
       else
         this->Dim::parse(child);
@@ -178,12 +215,60 @@ public:
 
   bool postSolve(const TimeStep& tp,bool) {return true;}
 
+  bool saveFlux(const BoundaryFlux& bf, const TimeStep& tp)
+  {
+    if (bf.code == 0 || bf.timeIncr < 1 || bf.set.empty()) return true;
+    if (tp.step < 1 || (tp.step-1)%bf.timeIncr > 0) return true;
+
+    Vector force(SIM::getBoundaryForce(temperature,this,bf.code,tp.time));
+    if (force.size() == 0)
+      return false;
+
+    std::ostream* os = &std::cout;
+    std::stringstream str;
+
+    if (Dim::myPid == 0) {
+      if (bf.file.empty())
+        std::cout << std::endl;
+      else
+        os = new std::ofstream(bf.file.c_str(),
+                               tp.step == 1 ? std::ios::out : std::ios::app);
+
+      char line[256];
+      if (tp.step == 1) {
+        *os <<"# Heat flux over surface with code "<< bf.code << std::endl;
+        sprintf(line,"#%9s %11s\n", "time","Flux");
+        *os << line;
+      }
+
+      sprintf(line,"%10.6f", tp.time.t);
+      str << line;
+      sprintf(line," %11.6g", force[0]);
+      str << line;
+      str << '\n';
+    }
+
+    if (bf.file.empty())
+      utl::printSyncronized(std::cout, str, Dim::myPid);
+    else if (Dim::myPid == 0)
+    {
+      *os << str.str();
+      delete os;
+    }
+
+    return true;
+  }
+
+
   //! \brief Saves the converged results to VTF file of a given time step.
   //! \param[in] tp Time step identifier
   //! \param[in] nBlock Running VTF block counter
   bool saveStep(const TimeStep& tp, int& nBlock)
   {
     PROFILE1("SIMHeatEquation::saveStep");
+
+    for (size_t i=0; i< fluxes.size(); ++i)
+      saveFlux(fluxes[i],tp);
 
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0)
       return true;
@@ -232,6 +317,18 @@ public:
 #endif
 
 protected:
+  //! \brief Performs some pre-processing tasks on the FE model.
+  //! \details This method is reimplemented to ensure that threading groups are
+  //! established for the patch faces subjected to boundary flux integration.
+  virtual bool preprocessB()
+  {
+    PropertyVec::const_iterator p;
+    for (p = Dim::myProps.begin(); p != Dim::myProps.end(); p++)
+      if (std::find_if(fluxes.begin(),fluxes.end(), hasCode(p->pindx)) != fluxes.end())
+        this->generateThreadGroups(*p,SIMinput::msgLevel < 2);
+
+    return true;
+  }
   //! \brief Initializes material properties for integration of interior terms.
   //! \param[in] propInd Physical property index
   virtual bool initMaterial(size_t propInd)
@@ -262,6 +359,8 @@ private:
 
   Vectors temperature;
   std::string inputContext; //!< Input context
+
+  std::vector<BoundaryFlux> fluxes; //!< Heat fluxes to calculate
 };
 
 

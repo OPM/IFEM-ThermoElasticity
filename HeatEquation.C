@@ -16,7 +16,9 @@
 #include "TimeDomain.h"
 #include "Utilities.h"
 #include "ElmMats.h"
+#include "ElmNorm.h"
 #include "MaterialBase.h"
+#include "Vec3Oper.h"
 
 
 HeatEquation::HeatEquation (unsigned short int n, int order) :
@@ -115,4 +117,34 @@ const char* HeatEquation::getField2Name (size_t i,
   name = prefix + std::string(" ") + s[i];
 
   return name.c_str();
+}
+
+
+ForceBase* HeatEquation::getForceIntegrand(const Vec3*, AnaSol*) const
+{
+  return new HeatEquationFlux(*const_cast<HeatEquation*>(this));
+}
+
+
+bool HeatEquationFlux::evalBou (LocalIntegral& elmInt, const FiniteElement& fe,
+                                const TimeDomain& time,
+                                const Vec3& X, const Vec3& normal) const
+{
+  HeatEquation& problem = static_cast<HeatEquation&>(myProblem);
+  ElmNorm& elmNorm = static_cast<ElmNorm&>(elmInt);
+
+  const Material* mat = problem.getMaterial();
+
+  double theta = fe.N.dot(elmNorm.vec[0]);
+  double kappa=mat?mat->getThermalConductivity(theta):1.0;
+
+  // Temperature gradient in integration point
+  Vec3 gradT;
+  for (size_t i = 1;i <= fe.N.size();i++)
+    for (size_t l = 1;l <= problem.getNoSpaceDim();l++)
+      gradT[l-1] += fe.dNdX(i,l)*elmNorm.vec[0](i);
+
+  elmNorm[0] += kappa*gradT*normal*fe.detJxW;
+
+  return true;
 }
