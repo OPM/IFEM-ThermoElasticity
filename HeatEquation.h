@@ -71,6 +71,7 @@ public:
   //! \param[in] prefix Name prefix for all components
   virtual const char* getField2Name(size_t i, const char* prefix = 0) const;
 
+  void setInitialTemperature(const RealFunc* f)  { init = f; }
   size_t getNoSpaceDim() const { return nsd; }
 
   //! \brief Returns a pointer to an Integrand for boundary force evaluation.
@@ -85,6 +86,7 @@ protected:
   TimeIntegration::BDF bdf;  //!< BDF helper class
   Material* mat;             //!< Material parameters
   RealFunc* flux;            //!< Pointer to the flux field
+  const RealFunc* init;      //!< Initial temperature function
 };
 
 /*!

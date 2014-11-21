@@ -46,6 +46,7 @@ public:
     const RealFunc* f = this->S2.getInitialTemperature();
     if (!f)
       return true;
+    this->S1.setInitialTemperature(f);
 
     for (int i = 0; i < this->S1.getNoPatches(); i++) {
       Vector locvec;

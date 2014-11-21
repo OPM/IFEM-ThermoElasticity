@@ -316,6 +316,8 @@ public:
   }
 #endif
 
+  void setInitialTemperature(const RealFunc* f) { he.setInitialTemperature(f); }
+
 protected:
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to ensure that threading groups are
