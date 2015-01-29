@@ -21,12 +21,12 @@
 #include "SIMElasticityWrap.h"
 #include "HDF5Writer.h"
 #include "XMLWriter.h"
+#include "TimeIntUtils.h"
 #include "Utilities.h"
 #include "Profiler.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "TimeIntUtils.h"
 
 
 //! \brief Setup and launch simulation
@@ -134,29 +134,12 @@ int main (int argc, char** argv)
 
   if (myPid == 0)
   {
-    const SIMoptions& opts = IFEM::getOptions();
     std::cout <<"\n >>> IFEM Thermo-Elasticity solver <<<"
 	      <<"\n ====================================\n"
 	      <<"\n Executing command:\n";
     for (i = 0; i < argc; i++) std::cout <<" "<< argv[i];
-    std::cout <<"\n\nInput file: "<< infile
-	      <<"\nEquation solver: "<< opts.solver
-	      <<"\nNumber of Gauss points: "<< opts.nGauss[0];
-    if (opts.format >= 0)
-    {
-      std::cout <<"\nVTF file format: "<< (opts.format ? "BINARY":"ASCII")
-                <<"\nNumber of visualization points: "<< opts.nViz[0]
-                <<" "<< opts.nViz[1];
-      if (!twoD) std::cout <<" "<< opts.nViz[2];
-    }
-
-    if (opts.discretization == ASM::Lagrange)
-      std::cout <<"\nLagrangian basis functions are used";
-    else if (opts.discretization == ASM::Spectral)
-      std::cout <<"\nSpectral basis functions are used";
-    else if (opts.discretization == ASM::LRSpline)
-      std::cout <<"\nLR-spline basis functions are used";
-    std::cout << std::endl;
+    std::cout <<"\n\nInput file: "<< infile;
+    IFEM::getOptions().print(std::cout) << std::endl;
   }
   utl::profiler->stop("Initialization");
 
@@ -164,6 +147,4 @@ int main (int argc, char** argv)
     return runSimulator<SIM2D>(infile, restartfile, tIt);
   else
     return runSimulator<SIM3D>(infile, restartfile, tIt);
-
-  return 1; // Should not be here
 }
