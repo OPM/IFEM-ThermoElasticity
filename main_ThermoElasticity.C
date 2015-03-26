@@ -100,7 +100,7 @@ int main (int argc, char** argv)
   char* restartfile = NULL;
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
 
-  int myPid = IFEM::Init(argc, argv);
+  IFEM::Init(argc, argv);
 
   for (int i = 1; i < argc; i++)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
@@ -130,15 +130,12 @@ int main (int argc, char** argv)
     return 0;
   }
 
-  if (myPid == 0)
-  {
-    std::cout <<"\n >>> IFEM Thermo-Elasticity solver <<<"
-	      <<"\n ====================================\n"
-	      <<"\n Executing command:\n";
-    for (int i = 0; i < argc; i++) std::cout <<" "<< argv[i];
-    std::cout <<"\n\nInput file: "<< infile;
-    IFEM::getOptions().print(std::cout) << std::endl;
-  }
+  std::cout <<"\n >>> IFEM Thermo-Elasticity solver <<<"
+            <<"\n ====================================\n"
+            <<"\n Executing command:\n";
+  for (int i = 0; i < argc; i++) IFEM::cout <<" "<< argv[i];
+  IFEM::cout <<"\n\nInput file: "<< infile;
+  IFEM::getOptions().print(IFEM::cout) << std::endl;
   utl::profiler->stop("Initialization");
 
   if (twoD)
