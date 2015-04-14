@@ -11,8 +11,8 @@
 //!
 //==============================================================================
 
-#ifndef _SIM_HEATEQUATION_H_
-#define _SIM_HEATEQUATION_H_
+#ifndef _SIM_HEAT_EQUATION_H_
+#define _SIM_HEAT_EQUATION_H_
 
 #include "AnaSol.h"
 #include "ASMstruct.h"
@@ -57,12 +57,13 @@ template<class Dim> class SIMHeatEquation : public Dim
   class hasCode
   {
     int myCode; //!< The property code to compare with
-    public:
-      //! \brief Constructor initializing the property code to search for.
-      hasCode(int code) : myCode(abs(code)) {}
-      //! \brief Returns \e true if the BoundaryForce \a b has the code \a myCode.
-      bool operator()(const BoundaryFlux& b) { return abs(b.code) == myCode; }
+  public:
+    //! \brief Constructor initializing the property code to search for.
+    hasCode(int code) : myCode(abs(code)) {}
+    //! \brief Returns \e true if the BoundaryForce \a b has the code \a myCode.
+    bool operator()(const BoundaryFlux& b) { return abs(b.code) == myCode; }
   };
+
 public:
   struct SetupProps
   {
@@ -74,23 +75,22 @@ public:
   };
 
   //! \brief Default constructor.
-  //! \param[in] order Order of temporal integration (1, 2)
+  //! \param[in] order Order of temporal integration (1 or 2)
   SIMHeatEquation(int order) :
-    Dim(1), he(Dim::dimension, order), inputContext("heatequation")
+    Dim(1), he(Dim::dimension,order), inputContext("heatequation")
   {
     Dim::myProblem = &he;
-    this->myHeading = "Heat equation solver";
+    Dim::myHeading = "Heat equation solver";
   }
 
-  //! \brief Destructor
+  //! \brief The destructor zero out the integrand pointer (deleted by parent).
   virtual ~SIMHeatEquation()
   {
     Dim::myProblem = NULL;
+    Dim::myInts.clear();
   }
 
-  //! \brief Parses a data section from an input stream (deprecated).
-  virtual bool parse(char*, std::istream&) { return false; }
-
+  using Dim::parse;
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
@@ -181,7 +181,6 @@ public:
       temperature[n] = temperature[n-1];
 
     he.advanceStep();
-
     return true;
   }
 
@@ -199,7 +198,7 @@ public:
     if (!this->assembleSystem(tp.time, temperature))
       return false;
 
-    if (!this->solveSystem(temperature.front(), Dim::msgLevel-1,"temperature "))
+    if (!this->solveSystem(temperature.front(),Dim::msgLevel-1,"temperature "))
       return false;
 
     if (Dim::msgLevel == 1)
@@ -208,8 +207,8 @@ public:
       double dMax[1];
       double normL2 = this->solutionNorms(temperature.front(),dMax,iMax,1);
       if (Dim::myPid == 0)
-        std::cout <<"Temperature summary: L2-norm        : "<< normL2
-                  <<"\n                   Max temperature : "<< dMax[0]
+        std::cout <<"  Temperature summary: L2-norm         : "<< normL2
+                  <<"\n                       Max temperature : "<< dMax[0]
                   << std::endl;
     }
 
@@ -290,10 +289,10 @@ public:
   {
     PROFILE1("SIMHeatEquation::saveStep");
 
-    for (size_t i=0; i< fluxes.size(); ++i)
+    for (size_t i = 0; i < fluxes.size(); ++i)
       saveIntegral(fluxes[i],tp,true);
 
-    for (size_t i=0; i< senergy.size(); ++i)
+    for (size_t i = 0; i < senergy.size(); ++i)
       saveIntegral(senergy[i],tp,false);
 
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0)
@@ -336,10 +335,7 @@ public:
 #ifdef HAS_PETSC
   //! \brief Set MPI communicator for the linear equation solvers
   //! \param comm The communicator to use
-  void setCommunicator(const MPI_Comm* comm)
-  {
-    this->adm.setCommunicator(comm);
-  }
+  void setCommunicator(const MPI_Comm* comm) { Dim::adm.setCommunicator(comm); }
 #endif
 
   //! \brief Set the function for the initial temperature field

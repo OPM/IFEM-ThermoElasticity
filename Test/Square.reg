@@ -10,56 +10,52 @@ Number of nodes       324
 Number of dofs        648
 Number of unknowns    576
   step = 1  time = 0.1
-Temperature summary: L2-norm        : 197.976
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 197.976
+                       Max temperature : 300
   0.100000     145.827
   0.100000    0.925125
   step = 2  time = 0.2
-Temperature summary: L2-norm        : 211.781
-                   Max temperature : 300
-Max Y-displacement : 1.02042e-06
+  Temperature summary: L2-norm         : 211.781
+                       Max temperature : 300
   0.200000      76.648
   0.200000     1.36994
   step = 3  time = 0.3
-Temperature summary: L2-norm        : 221.184
-                   Max temperature : 300
-L2-norm            : 0
-Max Y-displacement : 1.03974e-06
+  Temperature summary: L2-norm         : 221.184
+                       Max temperature : 300
   0.300000     56.6325
   0.300000     1.70652
   step = 4  time = 0.4
-Temperature summary: L2-norm        : 228.713
-                   Max temperature : 300
-Max Y-displacement : 1.00199e-06
+  Temperature summary: L2-norm         : 228.713
+                       Max temperature : 300
   0.400000     46.6896
   0.400000     1.98589
   step = 5  time = 0.5
-Temperature summary: L2-norm        : 235.16
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 235.16
+                       Max temperature : 300
   0.500000     40.3108
   0.500000     2.22777
   step = 6  time = 0.6
-Temperature summary: L2-norm        : 240.87
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 240.87
+                       Max temperature : 300
   0.600000     35.6214
   0.600000     2.44181
   step = 7  time = 0.7
-Temperature summary: L2-norm        : 246.015
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 246.015
+                       Max temperature : 300
   0.700000     31.8785
   0.700000      2.6335
   step = 8  time = 0.8
-Temperature summary: L2-norm        : 250.693
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 250.693
+                       Max temperature : 300
   0.800000     28.7334
   0.800000     2.80634
   step = 9  time = 0.9
-Temperature summary: L2-norm        : 254.965
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 254.965
+                       Max temperature : 300
   0.900000     26.0049
   0.900000     2.96281
   step = 10  time = 1
-Temperature summary: L2-norm        : 258.875
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 258.875
+                       Max temperature : 300
   1.000000     23.5913
   1.000000     3.10478

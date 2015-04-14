@@ -10,62 +10,62 @@ Number of nodes       324
 Number of dofs        648
 Number of unknowns    612
   step = 1  time = 0.1
-Temperature summary: L2-norm        : 197.976
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 197.976
+                       Max temperature : 300
 L2-norm            : 1.51767e-05
 Max X-displacement : 3.90557e-05
 Max Y-displacement : 4.46445e-06
   step = 2  time = 0.2
-Temperature summary: L2-norm        : 213.77
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 213.77
+                       Max temperature : 300
 L2-norm            : 2.3519e-05
 Max X-displacement : 5.94061e-05
 Max Y-displacement : 6.5639e-06
   step = 3  time = 0.3
-Temperature summary: L2-norm        : 223.239
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 223.239
+                       Max temperature : 300
 L2-norm            : 2.93578e-05
 Max X-displacement : 7.3177e-05
 Max Y-displacement : 7.90641e-06
   step = 4  time = 0.4
-Temperature summary: L2-norm        : 230.561
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 230.561
+                       Max temperature : 300
 L2-norm            : 3.40511e-05
 Max X-displacement : 8.40652e-05
 Max Y-displacement : 8.94457e-06
   step = 5  time = 0.5
-Temperature summary: L2-norm        : 236.841
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 236.841
+                       Max temperature : 300
 L2-norm            : 3.80888e-05
 Max X-displacement : 9.33666e-05
 Max Y-displacement : 9.82504e-06
   step = 6  time = 0.6
-Temperature summary: L2-norm        : 242.461
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 242.461
+                       Max temperature : 300
 L2-norm            : 4.16699e-05
 Max X-displacement : 0.000101592
 Max Y-displacement : 1.06017e-05
   step = 7  time = 0.7
-Temperature summary: L2-norm        : 247.579
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 247.579
+                       Max temperature : 300
 L2-norm            : 4.48896e-05
 Max X-displacement : 0.000108979
 Max Y-displacement : 1.12986e-05
   step = 8  time = 0.8
-Temperature summary: L2-norm        : 252.268
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 252.268
+                       Max temperature : 300
 L2-norm            : 4.78011e-05
 Max X-displacement : 0.000115658
 Max Y-displacement : 1.19286e-05
   step = 9  time = 0.9
-Temperature summary: L2-norm        : 256.569
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 256.569
+                       Max temperature : 300
 L2-norm            : 5.04396e-05
 Max X-displacement : 0.000121711
 Max Y-displacement : 1.24995e-05
   step = 10  time = 1
-Temperature summary: L2-norm        : 260.508
-                   Max temperature : 300
+  Temperature summary: L2-norm         : 260.508
+                       Max temperature : 300
 L2-norm            : 5.28316e-05
 Max X-displacement : 0.000127199
 Max Y-displacement : 1.30173e-05
