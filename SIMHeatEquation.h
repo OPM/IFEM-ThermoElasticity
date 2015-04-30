@@ -30,6 +30,7 @@
 #include "LinIsotropic.h"
 #include <fstream>
 #include "HeatQuantities.h"
+#include <memory>
 
 
 /*!
@@ -117,7 +118,7 @@ public:
       } else if (!strcasecmp(child->Value(),"isotropic")) {
         int code = this->parseMaterialSet(child,mVec.size());
         std::cout <<"\tMaterial code "<< code <<":";
-        mVec.push_back(new typename Integrand::MaterialType);
+        mVec.push_back(std::unique_ptr<typename Integrand::MaterialType>(new typename Integrand::MaterialType));
         mVec.back()->parse(child);
       }
       else if (!strcasecmp(child->Value(),"heatflux") ||
@@ -147,8 +148,8 @@ public:
     }
 
     if (!mVec.empty()) {
-      wdc.setMaterial(mVec.front());
-      he.setMaterial(mVec.front());
+      wdc.setMaterial(mVec.front().get());
+      he.setMaterial(mVec.front().get());
     }
 
     return true;
@@ -371,8 +372,8 @@ protected:
     if (propInd >= mVec.size())
       propInd = mVec.size()-1;
 
-    he.setMaterial(mVec[propInd]);
-    wdc.setMaterial(mVec[propInd]);
+    he.setMaterial(mVec[propInd].get());
+    wdc.setMaterial(mVec[propInd].get());
     return true;
   }
 
@@ -409,7 +410,7 @@ protected:
 private:
   Integrand he;                 //!< Integrand
   typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
-  std::vector<typename Integrand::MaterialType*> mVec;  //!< Material data
+  std::vector<std::unique_ptr<typename Integrand::MaterialType>> mVec;  //!< Material data
 
   Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
