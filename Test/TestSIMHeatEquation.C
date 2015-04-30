@@ -12,12 +12,13 @@
 
 #include "SIMHeatEquation.h"
 #include "SIM2D.h"
+#include "HeatEquation.h"
 
 #include "gtest/gtest.h"
 
 TEST(TestSIMHeatEquation, Parse)
 {
-  SIMHeatEquation<SIM2D> sim(2);
+  SIMHeatEquation<SIM2D,HeatEquation> sim(2);
   EXPECT_TRUE(sim.read("Square.xinp"));
 
   const HeatEquation& heat = static_cast<const HeatEquation&>(*sim.getProblem());

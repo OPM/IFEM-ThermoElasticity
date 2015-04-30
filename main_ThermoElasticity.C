@@ -20,6 +20,7 @@
 #include "SIMThermoElasticity.h"
 #include "SIMElasticityWrap.h"
 #include "HDF5Writer.h"
+#include "HeatEquation.h"
 #include "XMLWriter.h"
 #include "TimeIntUtils.h"
 #include "Utilities.h"
@@ -36,10 +37,10 @@
   template<class Dim>
 int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
 {
-  SIMHeatEquation<Dim> tempModel(tIt==TimeIntegration::BE?1:2);
+  SIMHeatEquation<Dim,HeatEquation> tempModel(tIt==TimeIntegration::BE?1:2);
   SIMElasticityWrap<Dim> solidModel;
-  SIMThermoElasticity< SIMHeatEquation<Dim>, SIMElasticityWrap<Dim> > model(tempModel, solidModel);
-  SIMSolver< SIMThermoElasticity< SIMHeatEquation<Dim>, SIMElasticityWrap<Dim> > > solver(model);
+  SIMThermoElasticity< SIMHeatEquation<Dim,HeatEquation>, SIMElasticityWrap<Dim> > model(tempModel, solidModel);
+  SIMSolver< SIMThermoElasticity< SIMHeatEquation<Dim,HeatEquation>, SIMElasticityWrap<Dim> > > solver(model);
 
   if (ConfigureSIM(tempModel, infile)  ||
       ConfigureSIM(solidModel, infile) || !solver.read(infile))

@@ -27,9 +27,9 @@
 #include "TimeStep.h"
 #include "Utilities.h"
 #include "tinyxml.h"
-#include "HeatEquation.h"
 #include "LinIsotropic.h"
 #include <fstream>
+#include "HeatQuantities.h"
 
 
 /*!
@@ -38,7 +38,7 @@
   heat equation problem using NURBS-based finite elements.
 */
 
-template<class Dim> class SIMHeatEquation : public Dim
+template<class Dim, class Integrand> class SIMHeatEquation : public Dim
 {
   //! \brief Struct containing parameters for boundary heat flux calculation.
   struct BoundaryFlux
@@ -240,7 +240,7 @@ public:
     if (flux)
       integral = SIM::getBoundaryForce(temperature,this,bf.code,tp.time);
     else {
-      HeatEquationStoredEnergy energy(he);
+      HeatEquationStoredEnergy<Integrand> energy(he);
       energy.initBuffer(this->getNoElms());
       SIM::integrate(temperature,this,bf.code,tp.time,&energy);
       energy.assemble(integral);
@@ -407,9 +407,9 @@ protected:
       }
   }
 private:
-  HeatEquation he;                 //!< Integrand
-  HeatEquation::WeakDirichlet wdc; //!< Weak dirichlet integrand
-  std::vector<Material*> mVec;     //!< Material data
+  Integrand he;                 //!< Integrand
+  typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
+  std::vector<Material*> mVec;  //!< Material data
 
   Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
@@ -420,10 +420,10 @@ private:
 
 
 //! \brief Partial specialization for configurator
-template<class Dim>
-struct SolverConfigurator< SIMHeatEquation<Dim> > {
-  int setup(SIMHeatEquation<Dim>& ad,
-            const typename SIMHeatEquation<Dim>::SetupProps& props, char* infile)
+template<class Dim, class Integrand>
+struct SolverConfigurator< SIMHeatEquation<Dim,Integrand> > {
+  int setup(SIMHeatEquation<Dim,Integrand>& ad,
+            const typename SIMHeatEquation<Dim,Integrand>::SetupProps& props, char* infile)
   {
     utl::profiler->start("Model input");
 
@@ -456,5 +456,4 @@ struct SolverConfigurator< SIMHeatEquation<Dim> > {
     return 0;
   }
 };
-
 #endif
