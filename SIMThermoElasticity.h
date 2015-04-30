@@ -28,8 +28,8 @@ class SIMThermoElasticity : public SIMCoupled<TempSolver,SolidSolver>
 {
 public:
   //! \brief The constructor initializes the references to the two solvers.
-  SIMThermoElasticity(TempSolver& s1, SolidSolver& s2)
-    : SIMCoupled<TempSolver,SolidSolver>(s1,s2) {}
+  SIMThermoElasticity(TempSolver& s1, SolidSolver& s2, bool twoway=false)
+    : SIMCoupled<TempSolver,SolidSolver>(s1,s2), m_twoway(twoway) {}
 
   //! \brief Empty destructor.
   virtual ~SIMThermoElasticity() {}
@@ -37,7 +37,13 @@ public:
   //! \brief Initializes and sets up field dependencies.
   virtual void setupDependencies()
   {
-    this->S2.registerDependency(&this->S1, "temperature1", 1);
+    this->S2.registerDependency(&this->S1, "temperature1", 1, this->S1.getFEModel(), 1);
+    if (m_twoway) {
+      this->S1.registerDependency(&this->S2, "displacement1",
+                                  this->S1.dimension, this->S2.getFEModel(), 2);
+      this->S1.registerDependency(&this->S2, "pressure1", 1,
+                                  this->S2.getFEModel(), 2);
+    }
   }
 
   //! \brief Computes initial nodal temperatures for the head solver.
@@ -59,6 +65,8 @@ public:
 
     return true;
   }
+protected:
+  bool m_twoway;
 };
 
 #endif
