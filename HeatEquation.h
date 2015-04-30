@@ -16,8 +16,7 @@
 
 #include "IntegrandBase.h"
 #include "BDF.h"
-
-class Material;
+#include "LinIsotropic.h"
 
 /*!
   \brief Class representing the integrand of the heat equation.
@@ -28,6 +27,8 @@ class Material;
 class HeatEquation : public IntegrandBase
 {
 public:
+  typedef LinIsotropic MaterialType; //!< Material used in this integrand
+
   class WeakDirichlet : public IntegrandBase
   {
     public:

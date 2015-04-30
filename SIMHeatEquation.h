@@ -117,7 +117,7 @@ public:
       } else if (!strcasecmp(child->Value(),"isotropic")) {
         int code = this->parseMaterialSet(child,mVec.size());
         std::cout <<"\tMaterial code "<< code <<":";
-        mVec.push_back(new LinIsotropic(false,false));
+        mVec.push_back(new typename Integrand::MaterialType);
         mVec.back()->parse(child);
       }
       else if (!strcasecmp(child->Value(),"heatflux") ||
@@ -409,7 +409,7 @@ protected:
 private:
   Integrand he;                 //!< Integrand
   typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
-  std::vector<Material*> mVec;  //!< Material data
+  std::vector<typename Integrand::MaterialType*> mVec;  //!< Material data
 
   Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
