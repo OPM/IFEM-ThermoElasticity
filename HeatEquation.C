@@ -120,6 +120,53 @@ const char* HeatEquation::getField2Name (size_t i,
 }
 
 
+LocalIntegral* HeatEquation::WeakDirichlet::getLocalIntegral(size_t nen,
+                                                             size_t,
+                                                             bool) const
+{
+  ElmMats* result = new ElmMats;
+
+  result->withLHS = true;
+  result->resize(1,1);
+  result->A[0].resize(nen,nen);
+  result->b[0].resize(nen);
+
+  return result;
+}
+
+
+bool HeatEquation::WeakDirichlet::evalBou(LocalIntegral& elmInt,
+                                          const FiniteElement& fe,
+                                          const Vec3& X,
+                                          const Vec3& normal) const
+{
+  if (!flux) {
+    std::cerr <<" *** HeatEquation::evalBou: No flux function."<< std::endl;
+    return false;
+  }
+
+  ElmMats& elMat = static_cast<ElmMats&>(elmInt);
+
+  // Evaluate the Neumann value
+  double q = (*flux)(X);
+  double val = fe.N.dot(elMat.vec[0]);
+  double kappa = mat?mat->getThermalConductivity(val):1.0;
+
+  for (size_t i=1;i<=fe.N.size();++i) {
+    for (size_t j=1;j<=fe.N.size();++j) {
+      double dT=0;
+      for (size_t k=1;k<=nsd;++k)
+        dT += fe.dNdX(j,k)*normal[k-1];
+
+      elMat.A.front()(i,j) += (kappa*dT-envCond*(fe.N(j)-envT))*fe.N(i)*fe.detJxW;
+      elMat.b.front()(i) += q*fe.N(i)*fe.detJxW;
+    }
+  }
+
+  return true;
+}
+
+
 ForceBase* HeatEquation::getForceIntegrand(const Vec3*, AnaSol*) const
 {
   return new HeatEquationFlux(*const_cast<HeatEquation*>(this));

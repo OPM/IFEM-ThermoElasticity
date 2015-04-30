@@ -28,6 +28,47 @@ class Material;
 class HeatEquation : public IntegrandBase
 {
 public:
+  class WeakDirichlet : public IntegrandBase
+  {
+    public:
+      //! \brief Default constructor.
+      //! \param[in] n Number of spatial dimensions
+      //! \param[in] form The solution formulation to use
+      WeakDirichlet(unsigned short int n) :
+        nsd(n), flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) {}
+
+      //! \brief Empty destructor.
+      virtual ~WeakDirichlet() {}
+
+      //! \brief Returns that this integrand has no interior contributions.
+      virtual bool hasInteriorTerms() const { return false; }
+      //! \brief Returns a local integral contribution object for given element.
+      //! \param[in] nen Number of nodes on element
+      virtual LocalIntegral* getLocalIntegral(size_t nen, size_t, bool) const;
+      //! \brief Evaluates the integrand at a boundary point.
+      //! \param elmInt The local integral object to receive the contributions
+      //! \param[in] fe Finite element data of current integration point
+      //! \param[in] X Cartesian coordinates of current integration point
+      //! \param[in] normal Boundary normal vector at current integration point
+      virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
+                           const Vec3& X, const Vec3& normal) const;
+
+      //! \brief Defines the material properties.
+      virtual void setMaterial(Material* material) { mat = material; }
+      //! \brief Defines the flux function.
+      void setFlux(RealFunc* f) { flux = f; }
+      //!< \brief Set temperature of environment
+      void setEnvTemperature(double T) { envT = T; }
+      //!< \brief Set conductivity of environment
+      void setEnvConductivity(double alpha) { envCond = alpha; }
+    protected:
+      size_t nsd;       //!< Number of spatial dimensions
+      RealFunc* flux;   //!< Flux function
+      Material* mat;    //!< Material parameters
+      double envT;      //!< Temperature of environment
+      double envCond;   //!< Conductivity of environment
+  };
+
   //! \brief The default constructor initializes all pointers to zero.
   //! \param[in] n Number of spatial dimensions
   //! \param[in] order Temporal order (1,2)

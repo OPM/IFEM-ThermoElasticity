@@ -77,7 +77,7 @@ public:
   //! \brief Default constructor.
   //! \param[in] order Order of temporal integration (1 or 2)
   SIMHeatEquation(int order) :
-    Dim(1), he(Dim::dimension,order), inputContext("heatequation")
+    Dim(1), he(Dim::dimension,order), wdc(Dim::dimension), inputContext("heatequation")
   {
     Dim::myProblem = &he;
     Dim::myHeading = "Heat equation solver";
@@ -135,12 +135,21 @@ public:
         }
         strcasecmp(child->Value(),"heatflux") ? senergy.push_back(flux) :
                                                 fluxes.push_back(flux);
+      } else if (!strcasecmp(child->Value(),"environmentproperties")) {
+          double T=273.5, alpha=1.0;
+          utl::getAttribute(child,"T",T);
+          utl::getAttribute(child,"alpha",alpha);
+          wdc.setEnvTemperature(T);
+          wdc.setEnvConductivity(alpha);
       } else
+
         this->Dim::parse(child);
     }
 
-    if (!mVec.empty())
+    if (!mVec.empty()) {
+      wdc.setMaterial(mVec.front());
       he.setMaterial(mVec.front());
+    }
 
     return true;
   }
@@ -363,6 +372,7 @@ protected:
       propInd = mVec.size()-1;
 
     he.setMaterial(mVec[propInd]);
+    wdc.setMaterial(mVec[propInd]);
     return true;
   }
 
@@ -375,13 +385,31 @@ protected:
       return false;
 
     he.setFlux(tit->second);
+    wdc.setFlux(tit->second);
     return true;
   }
 
+  //! \brief Performs some pre-processing tasks on the FE model.
+  //! \details This method is reimplemented to couple the weak Dirichlet
+  //! integrand to the generic Neumann property codes.
+  virtual void preprocessA()
+  {
+    Dim::myInts.insert(std::make_pair(0,Dim::myProblem));
 
+    // Couple the weak Dirichlet integrand to the generic Neumann property codes
+    PropertyVec::iterator p;
+    for (p = Dim::myProps.begin(); p != Dim::myProps.end(); p++)
+      if (p->pcode == Property::NEUMANN_GENERIC ||
+          p->pcode == Property::ROBIN)
+      {
+        if (Dim::myInts.find(p->pindx) == Dim::myInts.end())
+          Dim::myInts.insert(std::make_pair(p->pindx,&wdc));
+      }
+  }
 private:
-  HeatEquation he;             //!< Integrand
-  std::vector<Material*> mVec; //!< Material data
+  HeatEquation he;                 //!< Integrand
+  HeatEquation::WeakDirichlet wdc; //!< Weak dirichlet integrand
+  std::vector<Material*> mVec;     //!< Material data
 
   Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
