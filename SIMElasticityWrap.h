@@ -69,6 +69,13 @@ public:
   //! \param[in] nBlock Running VTF block counter
   virtual bool saveStep(const TimeStep& tp, int& nBlock)
   {
+    if (tp.step > 0 && this->getNoResultPoints() > 0) {
+      double old = utl::zero_print_tol;
+      utl::zero_print_tol = 1e-16;
+      this->savePoints(pointfile,sol,tp.time.t,tp.step, 16);
+      utl::zero_print_tol = old;
+    }
+
     if (Dim::opt.format < 0)
       return true;
 
@@ -110,7 +117,12 @@ protected:
 
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
-      this->getIntegrand()->parse(child);
+      if (!strcasecmp(child->Value(),"postprocessing")) {
+        const TiXmlElement* respts = child->FirstChildElement("resultpoints");
+        if (respts)
+          utl::getAttribute(respts,"file",pointfile);
+      } else
+        this->getIntegrand()->parse(child);
 
     return this->SIMLinEl<Dim>::parse(elem);
   }
@@ -130,6 +142,7 @@ protected:
 
 private:
   Vector sol;
+  std::string pointfile;
 };
 
 
