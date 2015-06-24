@@ -24,8 +24,9 @@
 
 
 HeatEquation::HeatEquation (unsigned short int n, int order)
-  : nsd(n), bdf(order), mat(NULL), flux(NULL), init(NULL)
+  : bdf(order), mat(NULL), flux(NULL), init(NULL)
 {
+  nsd = n;
   primsol.resize(order+1);
   sourceTerm = nullptr;
 }

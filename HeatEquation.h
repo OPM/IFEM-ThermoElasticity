@@ -36,7 +36,7 @@ public:
     //! \brief Default constructor.
     //! \param[in] n Number of spatial dimensions
     WeakDirichlet(unsigned short int n) :
-      nsd(n), flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) {}
+      flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) { nsd=n; }
 
     //! \brief Empty destructor.
     virtual ~WeakDirichlet() {}
@@ -64,7 +64,6 @@ public:
     void setEnvConductivity(double alpha) { envCond = alpha; }
 
   private:
-    size_t nsd;     //!< Number of spatial dimensions
     RealFunc* flux; //!< Flux function
     Material* mat;  //!< Material parameters
     double envT;    //!< Temperature of environment
@@ -126,9 +125,6 @@ public:
   //! \brief Returns the function of the initial temperature field.
   const RealFunc* getInitialTemperature() const { return init; }
 
-  //! \brief Returns number of spatial dimensions.
-  size_t getNoSpaceDim() const { return nsd; }
-
   //! \brief Returns a pointer to an Integrand for boundary force evaluation.
   //! \note The Integrand is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer returned.
@@ -146,7 +142,6 @@ public:
   double initialTemperature(const Vec3& X) const { return init?(*init)(X):0.0; }
 
 private:
-  size_t nsd;               //!< Number of spatial dimensions
   TimeIntegration::BDF bdf; //!< BDF helper class
   Material* mat;            //!< Material parameters
   RealFunc* flux;           //!< Pointer to the heat flux field
