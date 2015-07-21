@@ -20,8 +20,8 @@
 /*!
   \brief Class representing the integrand of a linear thermo-elasticity problem.
   \details Most methods of this class are inherited form the parent class.
-  Only the \a formInitStrainForces method is reimplemented here, to account for
-  strains due to a varying temperature field.
+  Only the \a getThermalStrain, \a formInitStrainForces and \a evalSol methods
+  are reimplemented, to account for strains due to a varying temperature field.
 */
 
 class ThermoElasticity : public LinearElasticity
@@ -33,9 +33,6 @@ public:
   ThermoElasticity(unsigned short int n, bool axS = false);
   //! \brief Empty destructor.
   virtual ~ThermoElasticity() {}
-
-  //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem);
 
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
@@ -49,12 +46,16 @@ public:
   //! \param[in] X Cartesian coordinates of current point
   //! \param[in] MNPC Nodal point correspondance for the basis function values
   virtual bool evalSol(Vector& s, const FiniteElement& fe,
-		       const Vec3& X, const std::vector<int>& MNPC) const;
-
-  //! \brief Returns the initial temperature field.
-  const RealFunc* getInitialTemperature() const { return myTemp0; }
+                       const Vec3& X, const std::vector<int>& MNPC) const;
 
 protected:
+  //! \brief Evaluates the thermal strain at current integration point.
+  //! \param[in] eT Element temperature vector
+  //! \param[in] N Basis function values at current point
+  //! \param[in] X Cartesian coordinates of current integration point
+  virtual double getThermalStrain(const Vector& eT, const Vector& N,
+                                  const Vec3& X) const;
+
   //! \brief Calculates integration point initial strain force contributions.
   //! \param elMat Element matrices for current element
   //! \param[in] N Basis function values at current point
@@ -67,8 +68,7 @@ protected:
                                     const Vec3& X, double detJW) const;
 
 private:
-  RealFunc* myTemp0; //!< Initial temperature field
-  Vector    myTemp;  //!< Current temperature
+  Vector myTempVec; //!< Current temperature at nodal points
 };
 
 #endif
