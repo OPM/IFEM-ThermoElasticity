@@ -30,21 +30,31 @@
 #include <ctype.h>
 
 
-//! \brief Setup and launch simulation
+//! \brief Setup and launch the simulation.
 //! \param[in] infile The input file to process
 //! \param[in] restartfile File to restart from. NULL for no restart
 //! \param[in] tit The time integration method to use. Either BE or BDF2
   template<class Dim>
 int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
 {
-  SIMHeatEquation<Dim,HeatEquation> tempModel(tIt==TimeIntegration::BE?1:2);
-  SIMElasticityWrap<Dim> solidModel;
-  SIMThermoElasticity< SIMHeatEquation<Dim,HeatEquation>, SIMElasticityWrap<Dim> > model(tempModel, solidModel);
-  SIMSolver< SIMThermoElasticity< SIMHeatEquation<Dim,HeatEquation>, SIMElasticityWrap<Dim> > > solver(model);
+  typedef SIMHeatEquation<Dim,HeatEquation>                HeatSolver;
+  typedef SIMElasticityWrap<Dim>                           ElasticitySolver;
+  typedef SIMThermoElasticity<HeatSolver,ElasticitySolver> CoupledSolver;
 
-  if (ConfigureSIM(tempModel, infile)  ||
+  HeatSolver               tempModel(tIt==TimeIntegration::BE?1:2);
+  ElasticitySolver         solidModel;
+  CoupledSolver            model(tempModel,solidModel);
+  SIMSolver<CoupledSolver> solver(model);
+
+  utl::profiler->start("Model input");
+  IFEM::cout <<"\n\n0. Parsing input file(s)."
+             <<"\n=========================\n";
+
+  if (ConfigureSIM(tempModel, infile) ||
       ConfigureSIM(solidModel, infile) || !solver.read(infile))
     return 1;
+
+  utl::profiler->stop("Model input");
 
   if (restartfile)
     SIM::handleRestart(model, solver, restartfile, tempModel.getDumpInterval(),
@@ -53,7 +63,7 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
   model.setupDependencies();
   model.init(solver.getTimePrm());
 
-  DataExporter* exporter=NULL;
+  DataExporter* exporter = NULL;
   if (tempModel.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(model, solver, tempModel.opt.hdf5,
                                      restartfile && tempModel.opt.hdf5 == restartfile,
@@ -66,6 +76,7 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
   delete exporter;
   return 0;
 }
+
 
 /*!
   \brief Main program for an isogeometric thermo-elastic solver.
@@ -89,6 +100,8 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
   \arg -nv \a nv : Number of visualization points per knot-span in v-direction
   \arg -nw \a nw : Number of visualization points per knot-span in w-direction
   \arg -hdf5 : Write primary and projected secondary solution to HDF5 file
+  \arg -2D : Use two-parametric simulation driver (plane stress)
+  \arg -2Dpstrain : Use two-parametric simulation driver (plane strain)
 */
 
 int main (int argc, char** argv)
@@ -106,7 +119,9 @@ int main (int argc, char** argv)
   for (int i = 1; i < argc; i++)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
-    else if (!strcmp(argv[i],"-2D"))
+    else if (!strncmp(argv[i],"-2Dpstra",8))
+      twoD = SIMLinEl2D::planeStrain = true;
+    else if (!strncmp(argv[i],"-2D",3))
       twoD = true;
     else if (!strncmp(argv[i],"-msg",4) && i < argc-1)
       SIMinput::msgLevel = atoi(argv[++i]);
@@ -125,7 +140,7 @@ int main (int argc, char** argv)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D] [-nGauss <n>]\n"
+              <<"       [-lag|-spec|-LR] [-2D[pstrain]] [-nGauss <n>]\n"
 	      <<"       [-hdf5] [-vtf <format> [-nviz <nviz>]"
 	      <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]]\n";
     return 0;

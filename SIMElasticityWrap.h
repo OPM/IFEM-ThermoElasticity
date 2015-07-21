@@ -7,7 +7,7 @@
 //!
 //! \author Arne Morten Kvarving / SINTEF
 //!
-//! \brief Wrapper equpping the linear elasticity solver with dummy
+//! \brief Wrapper equipping the linear elasticity solver with dummy
 //! time-stepping support and temperature coupling.
 //!
 //==============================================================================
@@ -18,10 +18,10 @@
 #include "SIMLinEl.h"
 #include "SIMSolver.h"
 #include "ThermoElasticity.h"
+#include "Linear/AnalyticSolutions.h"
+#include "ASMstruct.h"
 #include "DataExporter.h"
 #include "Profiler.h"
-#include "TimeStep.h"
-#include "ASMstruct.h"
 
 
 /*!
@@ -31,26 +31,20 @@
 template<class Dim> class SIMElasticityWrap : public SIMLinEl<Dim>
 {
 public:
-  //! \brief Setup properties
-  struct SetupProps
-  {
-    bool checkRHS; //!< If true, check for a that model is right-hand oriented.
-
-    //! \brief Default constructor
-    SetupProps() : checkRHS(false) {}
-  };
+  typedef bool SetupProps; //!< Dummy declaration (no setup properties required)
 
   //! \brief Default constructor.
-  //! \param[in] checkRHS If \e true, ensure the model is in a right-hand system
   SIMElasticityWrap(bool checkRHS = false) : SIMLinEl<Dim>(checkRHS)
   {
-    this->myHeading = "Elasticity solver";
+    Dim::myHeading = "Elasticity solver";
+    Dim::msgLevel = 1; // prints the solution summary only
   }
-  //! \brief Destructor.
+
+  //! \brief The destructor clears the VTF-file pointer.
   virtual ~SIMElasticityWrap() { this->setVTF(NULL); }
 
   //! \brief Registers fields for output to a data exporter.
-  virtual void registerFields(DataExporter& exporter)
+  void registerFields(DataExporter& exporter)
   {
     exporter.registerField("solid displacement", "solid displacement",
                            DataExporter::SIM, DataExporter::PRIMARY |
@@ -58,22 +52,22 @@ public:
     exporter.setFieldValue("solid displacement", this, &sol);
   }
 
-  //! \brief Opens a new VTF-file and writes the model geometry to it.
-  //! \param[in] fileName File name used to construct the VTF-file name from
-  //! \param[out] geoBlk Running geometry block counter
-  //! \param[out] nBlock Running result block counter
-  virtual bool saveModel(char* fileName, int& geoBlk, int& nBlock) { return true; }
+  //! \brief Initializes the solution vector.
+  void initSol() { sol.resize(this->getNoDOFs(),true); }
 
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
   //! \param[in] nBlock Running VTF block counter
-  virtual bool saveStep(const TimeStep& tp, int& nBlock)
+  bool saveStep(const TimeStep& tp, int& nBlock)
   {
-    if (tp.step > 0 && this->getNoResultPoints() > 0) {
-      double old = utl::zero_print_tol;
+    PROFILE1("SIMElasticity::saveStep");
+
+    if (tp.step > 0 && this->getNoResultPoints() > 0)
+    {
+      double old_tol = utl::zero_print_tol;
       utl::zero_print_tol = 1e-16;
-      this->savePoints(pointfile,sol,tp.time.t,tp.step, 16);
-      utl::zero_print_tol = old;
+      this->savePoints(pointfile,sol,tp.time.t,tp.step,16);
+      utl::zero_print_tol = old_tol;
     }
 
     if (Dim::opt.format < 0)
@@ -83,30 +77,54 @@ public:
     return this->writeGlvS(sol,iDump,nBlock);
   }
 
-  //! \brief Advances the time step one step forward.
-  virtual bool advanceStep(TimeStep&) { return true; }
+  //! \brief Dummy method.
+  bool advanceStep(TimeStep&) { return true; }
 
   //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep&)
+  bool solveStep(TimeStep& tp)
   {
-    return this->assembleSystem() && this->solveSystem(sol,1);
+    PROFILE1("SIMElasticity::solveStep");
+
+    this->setMode(SIM::STATIC);
+    this->setQuadratureRule(Dim::opt.nGauss[0]);
+    if (!this->assembleSystem()) return false;
+    if (!this->solveSystem(sol,1)) return false;
+
+    return this->postSolve(tp);
   }
 
-  bool postSolve(const TimeStep&, bool) { return true; }
+  //! \brief Postprocesses the solution of current time step.
+  bool postSolve(const TimeStep& tp, bool = false)
+  {
+    Vectors gNorm;
+    this->setMode(SIM::RECOVERY);
+    this->setQuadratureRule(Dim::opt.nGauss[1]);
+    if (!this->solutionNorms(tp.time,Vectors(1,sol),gNorm))
+      return false;
+    else if (gNorm.empty())
+      return true;
 
+    IFEM::cout <<"Energy norm |u^h| = a(u^h,u^h)^0.5   : "<< gNorm[0](1);
+    if (gNorm[0](2) != 0.0)
+      IFEM::cout <<"\nExternal energy ((f,u^h)+(t,u^h)^0.5 : "<< gNorm[0](2);
+    if (this->haveAnaSol() && gNorm[0].size() >= 4)
+      IFEM::cout <<"\nExact norm  |u|   = a(u,u)^0.5       : "<< gNorm[0](3)
+                 <<"\nExact error a(e,e)^0.5, e=u-u^h      : "<< gNorm[0](4)
+                 <<"\nExact relative error (%) : "
+                 << gNorm[0](4)/gNorm[0](3)*100.0;
+    IFEM::cout << std::endl;
+    return true;
+  }
+
+  //! \brief Returns the initial temperature field.
   const RealFunc* getInitialTemperature() const
   {
-    if (!Dim::myProblem)
-      return NULL;
-
-    return static_cast<ThermoElasticity*>(Dim::myProblem)->getInitialTemperature();
+    ThermoElasticity* thelp = dynamic_cast<ThermoElasticity*>(Dim::myProblem);
+    return thelp ? thelp->getInitialTemperature() : NULL;
   }
 
-  void init()
-  {
-    sol.resize(this->getNoDOFs(), true);
-  }
 protected:
+  using SIMElasticity<Dim>::parse;
   //! \brief Parses a data section from an XML element.
   //! \param[in] elem The XML element to parse
   virtual bool parse(const TiXmlElement* elem)
@@ -117,11 +135,38 @@ protected:
 
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
-      if (!strcasecmp(child->Value(),"postprocessing")) {
+      if (!strcasecmp(child->Value(),"anasol"))
+      {
+        std::string type;
+        utl::getAttribute(child,"type",type,true);
+        if (type == "pipe")
+        {
+          double Ri = 0.0, Ro = 0.0, Ti = 0.0, To = 0.0, T0 = 273.0;
+          double E = 0.0, nu = 0.0, alpha = 0.0;
+          bool polar = false;
+          utl::getAttribute(child,"Ri",Ri);
+          utl::getAttribute(child,"Ro",Ro);
+          utl::getAttribute(child,"Ti",Ti);
+          utl::getAttribute(child,"To",To);
+          utl::getAttribute(child,"Tref",T0);
+          utl::getAttribute(child,"E",E);
+          utl::getAttribute(child,"nu",nu);
+          utl::getAttribute(child,"alpha",alpha);
+          utl::getAttribute(child,"polar",polar);
+          IFEM::cout <<"\tAnalytical solution: Pipe Ri="<< Ri <<" Ro="<< Ro
+                     <<" Ti="<< Ti <<" To="<< To << std::endl;
+          if (!Dim::mySol)
+            Dim::mySol = new AnaSol(new Pipe(Ri,Ro,Ti,To,T0,E,nu,alpha,
+                                             Dim::dimension == 3, polar));
+        }
+      }
+      else if (!strcasecmp(child->Value(),"postprocessing"))
+      {
         const TiXmlElement* respts = child->FirstChildElement("resultpoints");
         if (respts)
           utl::getAttribute(respts,"file",pointfile);
-      } else
+      }
+      else
         this->getIntegrand()->parse(child);
 
     return this->SIMLinEl<Dim>::parse(elem);
@@ -141,36 +186,38 @@ protected:
   }
 
 private:
-  Vector sol;
-  std::string pointfile;
+  Vector      sol;       //!< Primary solution vector
+  std::string pointfile; //!< File name for result point output
 };
 
 
-//! \brief Partial specialization for configurator
-  template<class Dim>
-struct SolverConfigurator< SIMElasticityWrap<Dim> > {
-  int setup(SIMElasticityWrap<Dim>& ad,
-            const typename SIMElasticityWrap<Dim>::SetupProps& props, char* infile)
+/*!
+  \brief Configuration for a SIMElasticityWrap instance.
+*/
+
+template<class Dim> struct SolverConfigurator< SIMElasticityWrap<Dim> >
+{
+  //! \brief Configures a SIMElasticityWrap instance.
+  //! \param elasim The simulator to configure
+  //! \param infile The input file to parse
+  int setup(SIMElasticityWrap<Dim>& elasim, const bool&, char* infile)
   {
     utl::profiler->start("Model input");
 
-    // Reset the global element and node numbers
     ASMstruct::resetNumbering();
-    if (!ad.read(infile))
+    if (!elasim.read(infile))
       return 2;
 
     utl::profiler->stop("Model input");
+    elasim.opt.print(IFEM::cout) << std::endl;
 
-    // Preprocess the model and establish data structures for the algebraic system
-    if (!ad.preprocess())
+    // Preprocess the model and establish FE data structures
+    if (!elasim.preprocess())
       return 3;
 
-    // Initialize the linear solvers
-    ad.setMode(SIM::STATIC);
-    ad.initSystem(ad.opt.solver,1,1);
-    ad.setAssociatedRHS(0,0);
-    ad.setQuadratureRule(ad.opt.nGauss[0]);
-    ad.init();
+    // Initialize the linear equation system solver
+    elasim.initSystem(elasim.opt.solver);
+    elasim.initSol();
 
     return 0;
   }
