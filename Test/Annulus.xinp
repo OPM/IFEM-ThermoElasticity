@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<simulation>
+
+  <geometry>
+    <patchfile>annulus.g2</patchfile>
+    <raiseorder patch="1" u="1" v="1"/>
+    <refine patch="1" u="15" v="15"/>
+    <topologysets>
+      <set name="Inner" type="edge">
+        <item patch="1">3</item>
+      </set>
+      <set name="Outer" type="edge">
+        <item patch="1">4</item>
+      </set>
+      <set name="Bottom" type="edge">
+        <item patch="1">1</item>
+      </set>
+      <set name="Left" type="edge">
+        <item patch="1">2</item>
+      </set>
+    </topologysets>
+  </geometry>
+
+  <thermoelasticity>
+    <isotropic E="2.0e11" nu="0.3" rho="7850.0"
+               alpha="1.2e-5" cp="500.0" kappa="50.0"/>
+  </thermoelasticity>
+
+  <heatequation>
+    <boundaryconditions>
+      <dirichlet set="Inner" comp="1">373.0</dirichlet>
+      <dirichlet set="Outer" comp="1">293.0</dirichlet>
+    </boundaryconditions>
+  </heatequation>
+
+  <elasticity>
+    <boundaryconditions>
+      <dirichlet set="Left" comp="1"/>
+      <dirichlet set="Bottom" comp="2"/>
+    </boundaryconditions>
+    <initialtemperature>273.0</initialtemperature>
+<!-- Reinstate this if you want to use the analytic temperature field
+     instead of the computed field from the heat equation solver
+    <temperature type="expression">
+      r=sqrt(x*x+y*y); a=0.03; b=0.04; Ti=373.0; To=293.0;
+      Ti+(To-Ti)*log(r/a)/log(b/a)
+    </temperature>
+!-->
+    <anasol type="pipe" Ri="0.03" Ro="0.04" Ti="373.0" To="293.0"
+            E="2.0e11" nu="0.3" alpha="1.2e-5" polar="false"/>
+<!-- Reinstate this (and change to polar="true" above)
+     to output stresses in polar coordinates
+    <localsystem>cylindricZ</localsystem>
+!-->
+  </elasticity>
+
+  <timestepping start="0" end="1.0" dt="0.1"/>
+
+</simulation>

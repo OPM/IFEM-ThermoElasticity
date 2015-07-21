@@ -1,0 +1,210 @@
+Annulus.xinp -2Dpstrain
+
+Input file: Annulus.xinp
+Equation solver: 2
+Number of Gauss points: 4
+0. Parsing input file(s).
+1. Heat equation solver
+Parsing input file Annulus.xinp
+Parsing <geometry>
+  Parsing <patchfile>
+	Reading data file annulus.g2
+	Reading patch 1
+  Parsing <raiseorder>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Bottom (1,1,1D)
+	               Inner (1,3,1D)
+	               Left (1,2,1D)
+	               Outer (1,4,1D)
+  Parsing <patchfile>
+  Parsing <raiseorder>
+	Raising order of P1 1 1
+  Parsing <refine>
+	Refining P1 15 15
+  Parsing <topologysets>
+Parsing <thermoelasticity>
+	Material code 0: 2e+11 0.3 7850 1.2e-05 500 50
+Parsing <heatequation>
+  Parsing <dirichlet>
+	Dirichlet code 1: 373
+  Parsing <dirichlet>
+	Dirichlet code 1000001: 293
+Parsing <elasticity>
+Parsing <timestepping>
+Parsing input file succeeded.
+11. Heat equation solver
+Resolving Dirichlet boundary conditions
+	Constraining P1 E3 in direction(s) 1 code = 1
+	Constraining P1 E4 in direction(s) 1 code = 1000001
+ >>> SAM model summary <<<
+Number of elements    256
+Number of nodes       342
+Number of dofs        342
+Number of constraints 38
+Number of unknowns    304
+2. Elasticity solver
+Parsing input file Annulus.xinp
+Parsing <geometry>
+  Parsing <patchfile>
+	Reading data file annulus.g2
+	Reading patch 1
+  Parsing <raiseorder>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Bottom (1,1,1D)
+	               Inner (1,3,1D)
+	               Left (1,2,1D)
+	               Outer (1,4,1D)
+  Parsing <patchfile>
+  Parsing <raiseorder>
+	Raising order of P1 1 1
+  Parsing <refine>
+	Refining P1 15 15
+  Parsing <topologysets>
+Parsing <thermoelasticity>
+	Material code 0: 2e+11 0.3 7850 1.2e-05 500 50
+Parsing <heatequation>
+Parsing <elasticity>
+	Initial temperature: 273
+	Analytical solution: Pipe Ri=0.03 Ro=0.04 Ti=373 To=293
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 2: (fixed)
+	Initial temperature: 273
+Parsing <timestepping>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 4
+12. Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: E = 2e+11, nu = 0.3, rho = 7850, alpha = 1.2e-05
+Resolving Dirichlet boundary conditions
+	Constraining P1 E2 in direction(s) 1
+	Constraining P1 E1 in direction(s) 2
+ >>> SAM model summary <<<
+Number of elements    256
+Number of nodes       342
+Number of dofs        684
+Number of unknowns    648
+3. Time integration driver
+Parsing input file Annulus.xinp
+Parsing <geometry>
+Parsing <thermoelasticity>
+Parsing <heatequation>
+Parsing <elasticity>
+Parsing <timestepping>
+Parsing input file succeeded.
+  step = 1  time = 0.1
+  Temperature summary: L2-norm         : 292.157
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 4.05188e-06
+Max X-displacement : 5.96444e-06
+Max Y-displacement : 5.96444e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -2.49177
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -2.51551
+Exact relative error (%) : 83.2595
+  step = 2  time = 0.2
+  Temperature summary: L2-norm         : 299.232
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 6.25367e-06
+Max X-displacement : 9.2503e-06
+Max Y-displacement : 9.2503e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.05268
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -2.36584
+Exact relative error (%) : 78.3058
+  step = 3  time = 0.3
+  Temperature summary: L2-norm         : 303.74
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 7.77539e-06
+Max X-displacement : 1.15741e-05
+Max Y-displacement : 1.15741e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.19062
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -2.12106
+Exact relative error (%) : 70.2037
+  step = 4  time = 0.4
+  Temperature summary: L2-norm         : 307.263
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 8.98261e-06
+Max X-displacement : 1.34434e-05
+Max Y-displacement : 1.34434e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.20707
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -1.86404
+Exact relative error (%) : 61.6968
+  step = 5  time = 0.5
+  Temperature summary: L2-norm         : 310.241
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 1.00049e-05
+Max X-displacement : 1.50423e-05
+Max Y-displacement : 1.50423e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.18757
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -1.62909
+Exact relative error (%) : 53.9203
+  step = 6  time = 0.6
+  Temperature summary: L2-norm         : 312.833
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 1.08942e-05
+Max X-displacement : 1.64432e-05
+Max Y-displacement : 1.64432e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.15868
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -1.42426
+Exact relative error (%) : 47.1407
+  step = 7  time = 0.7
+  Temperature summary: L2-norm         : 315.114
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 1.16759e-05
+Max X-displacement : 1.76809e-05
+Max Y-displacement : 1.76809e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.1293
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -1.24798
+Exact relative error (%) : 41.3064
+  step = 8  time = 0.8
+  Temperature summary: L2-norm         : 317.129
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 1.23652e-05
+Max X-displacement : 1.87761e-05
+Max Y-displacement : 1.87761e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.10262
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -1.09603
+Exact relative error (%) : 36.2769
+  step = 9  time = 0.9
+  Temperature summary: L2-norm         : 318.91
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 1.29733e-05
+Max X-displacement : 1.97444e-05
+Max Y-displacement : 1.97444e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.0798
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -0.964189
+Exact relative error (%) : 31.9132
+  step = 10  time = 1
+  Temperature summary: L2-norm         : 320.483
+                       Max temperature : 373
+ >>> Solution summary <<<
+L2-norm            : 1.35096e-05
+Max X-displacement : 2.05997e-05
+Max Y-displacement : 2.05997e-05
+Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.0611
+Exact norm  |u|   = a(u,u)^0.5       : -3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : -0.849075
+Exact relative error (%) : 28.1031
+  Time integration completed.

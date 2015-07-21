@@ -11,55 +11,65 @@ Number of elements    256
 Number of nodes       324
 Number of dofs        648
 Number of unknowns    576
-L2-norm            : 133.627
-Max temperature    : 149.98
+  Temperature summary: L2-norm         : 133.627
+                       Max temperature : 149.98
 L2-norm            : 0
 Max X-displacement : 1.75674e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00201827
 # Stored energy in volumes with code 1000
 #     time        Flux
   0.100000    -0.49273
-L2-norm            : 127.04
-Max temperature    : 149.928
+  Temperature summary: L2-norm         : 127.04
+                       Max temperature : 149.928
 L2-norm            : 0
 Max X-displacement : 2.17587e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00239251
   0.200000   -0.764245
-L2-norm            : 122.657
-Max temperature    : 149.789
+  Temperature summary: L2-norm         : 122.657
+                       Max temperature : 149.789
 L2-norm            : 1.08064e-06
 Max X-displacement : 2.35165e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.0026427
   0.300000    -0.93862
-L2-norm            : 118.956
-Max temperature    : 149.481
+  Temperature summary: L2-norm         : 118.956
+                       Max temperature : 149.481
 L2-norm            : 1.13333e-06
 Max X-displacement : 2.4529e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00284112
   0.400000    -1.08037
-L2-norm            : 115.617
-Max temperature    : 148.91
+  Temperature summary: L2-norm         : 115.617
+                       Max temperature : 148.91
 L2-norm            : 1.16164e-06
 Max X-displacement : 2.48544e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00301007
   0.500000    -1.20382
-L2-norm            : 112.507
-Max temperature    : 147.991
+  Temperature summary: L2-norm         : 112.507
+                       Max temperature : 147.991
 L2-norm            : 1.17456e-06
 Max X-displacement : 2.49571e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00316054
   0.600000    -1.31504
-L2-norm            : 109.552
-Max temperature    : 146.676
+  Temperature summary: L2-norm         : 109.552
+                       Max temperature : 146.676
 L2-norm            : 1.17694e-06
 Max X-displacement : 2.49347e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00329802
   0.700000    -1.41739
-L2-norm            : 106.707
-Max temperature    : 144.963
+  Temperature summary: L2-norm         : 106.707
+                       Max temperature : 144.963
 L2-norm            : 1.17175e-06
 Max X-displacement : 2.47476e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00342564
   0.800000    -1.51289
-L2-norm            : 103.947
-Max temperature    : 142.887
+  Temperature summary: L2-norm         : 103.947
+                       Max temperature : 142.887
 L2-norm            : 1.16098e-06
 Max X-displacement : 2.4452e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00354549
   0.900000    -1.60288
-L2-norm            : 101.258
-Max temperature    : 140.507
+  Temperature summary: L2-norm         : 101.258
+                       Max temperature : 140.507
 L2-norm            : 1.14608e-06
 Max X-displacement : 2.40817e-06
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00365908
   1.000000    -1.68825
