@@ -85,14 +85,14 @@ bool ThermoElasticity::evalSol (Vector& s,
                                 const std::vector<int>& MNPC) const
 {
   // Extract element displacement and temperatures
-  Vector eV, eT;
+  Vectors eV(2);
   int ierr = 0;
   if (!primsol.empty() && !primsol.front().empty())
-    ierr = utl::gather(MNPC,npv,primsol.front(),eV);
+    ierr = utl::gather(MNPC,npv,primsol.front(),eV.front());
 
   // Extract temperature vector for this element
   if (!myTempVec.empty() && ierr == 0)
-    ierr = utl::gather(MNPC,1,myTempVec,eT);
+    ierr = utl::gather(MNPC,1,myTempVec,eV.back());
 
   if (ierr > 0)
   {
@@ -101,30 +101,9 @@ bool ThermoElasticity::evalSol (Vector& s,
     return false;
   }
 
-  // Evaluate the deformation gradient, dUdX, and/or the strain tensor, eps
-  Matrix Bmat;
-  Tensor dUdX(nDF);
-  SymmTensor eps(nsd,axiSymmetry);
-  if (!this->kinematics(eV,fe.N,fe.dNdX,X.x,Bmat,dUdX,eps))
+  // Evaluate the stress tensor
+  if (!this->evalSol(s,eV,fe,X,true))
     return false;
-
-  // Add strains due to temperature expansion
-  double epsT = this->getThermalStrain(eT,fe.N,X);
-  if (epsT != 0.0) eps -= epsT;
-
-  // Calculate the stress tensor through the constitutive relation
-  Matrix Cmat;
-  SymmTensor sigma(nsd, axiSymmetry || material->isPlaneStrain()); double U;
-  if (!material->evaluate(Cmat,sigma,U,fe,X,dUdX,eps))
-    return false;
-  else if (epsT != 0.0 && material->isPlaneStrain())
-    sigma(3,3) -= material->getStiffness(X)*epsT;
-
-  // Congruence transformation to local coordinate system at current point
-  if (locSys) sigma.transform(locSys->getTmat(X));
-
-  s = sigma;
-  s.push_back(sigma.vonMises());
 
   // Find the maximum values for each quantity. This block must be performed
   // serially on multi-threaded runs too, due to the update of the maxVal array
