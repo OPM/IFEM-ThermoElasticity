@@ -1,0 +1,27 @@
+Annulus.xinp -2D -be
+
+Number of elements    256
+Number of nodes       342
+Number of dofs        342
+Number of constraints 38
+Number of unknowns    304
+  step = 1  time = 0.1
+L2-norm            : 149.611
+  step = 2  time = 0.2
+L2-norm            : 173.96
+  step = 3  time = 0.3
+L2-norm            : 190
+  step = 4  time = 0.4
+L2-norm            : 203.337
+  step = 5  time = 0.5
+L2-norm            : 215.361
+  step = 6  time = 0.6
+L2-norm            : 226.474
+  step = 7  time = 0.7
+L2-norm            : 236.778
+  step = 8  time = 0.8
+L2-norm            : 246.292
+  step = 9  time = 0.9
+L2-norm            : 255.026
+  step = 10  time = 1
+L2-norm            : 262.998

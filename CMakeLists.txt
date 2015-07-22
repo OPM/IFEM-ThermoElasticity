@@ -42,11 +42,13 @@ set(ThermoEl_SRCS HeatEquation.C
 add_library(CommonThermo ${LinEl_SRCS} ${ThermoEl_SRCS})
 
 add_executable(ThermoElasticity main_ThermoElasticity.C)
+add_executable(HeatEquation main_HeatEquation.C)
 
 target_link_libraries(ThermoElasticity CommonThermo ${IFEM_LIBRARIES} CommonIFEM)
+target_link_libraries(HeatEquation CommonThermo ${IFEM_LIBRARIES} CommonIFEM)
 
 # Installation
-install(TARGETS ThermoElasticity DESTINATION bin)
+install(TARGETS HeatEquation ThermoElasticity DESTINATION bin)
 
 # Testing
 enable_testing()
@@ -58,13 +60,14 @@ configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/regtest.sh.in
 if(IFEM_USE_PARALLEL_PETSC)
   # Add parallel tests here
 else(IFEM_USE_PARALLEL_PETSC)
-  file(GLOB AD_TESTFILES RELATIVE ${PROJECT_SOURCE_DIR}/Test
-                         ${PROJECT_SOURCE_DIR}/Test/*.reg)
-  foreach(TESTFILE ${AD_TESTFILES})
-    ifem_add_test(${TESTFILE} ThermoElasticity)
-  endforeach()
+  ifem_add_test(Annulus.reg ThermoElasticity)
+  ifem_add_test(Bar.reg ThermoElasticity)
+  ifem_add_test(Square.reg ThermoElasticity)
+  ifem_add_test(Square-robin.reg ThermoElasticity)
+  ifem_add_test(Annulus-heat.reg HeatEquation)
+  ifem_add_test(Annulus-heat-be.reg HeatEquation)
 endif(IFEM_USE_PARALLEL_PETSC)
-list(APPEND TEST_APPS ThermoElasticity)
+list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 
 # Unit tests
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
