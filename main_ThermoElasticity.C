@@ -17,8 +17,8 @@
 #include "SIM3D.h"
 #include "SIMSolver.h"
 #include "SIMHeatEquation.h"
+#include "SIMThermalCoupling.h"
 #include "SIMThermoElasticity.h"
-#include "SIMElasticityWrap.h"
 #include "HDF5Writer.h"
 #include "HeatEquation.h"
 #include "XMLWriter.h"
@@ -37,9 +37,9 @@
   template<class Dim>
 int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
 {
-  typedef SIMHeatEquation<Dim,HeatEquation>                HeatSolver;
-  typedef SIMElasticityWrap<Dim>                           ElasticitySolver;
-  typedef SIMThermoElasticity<HeatSolver,ElasticitySolver> CoupledSolver;
+  typedef SIMHeatEquation<Dim,HeatEquation>               HeatSolver;
+  typedef SIMThermoElasticity<Dim>                        ElasticitySolver;
+  typedef SIMThermalCoupling<HeatSolver,ElasticitySolver> CoupledSolver;
 
   HeatSolver               tempModel(tIt==TimeIntegration::BE?1:2);
   ElasticitySolver         solidModel;

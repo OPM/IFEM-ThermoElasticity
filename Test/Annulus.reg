@@ -43,7 +43,6 @@ Number of nodes       342
 Number of dofs        342
 Number of constraints 38
 Number of unknowns    304
-2. Elasticity solver
 Parsing input file Annulus.xinp
 Parsing <geometry>
   Parsing <patchfile>
@@ -77,7 +76,6 @@ Parsing <timestepping>
 Parsing input file succeeded.
 Equation solver: 2
 Number of Gauss points: 4
-12. Elasticity solver
 Problem definition:
 Elasticity: 2D, gravity = 0 0
 LinIsotropic: E = 2e+11, nu = 0.3, rho = 7850, alpha = 1.2e-05
