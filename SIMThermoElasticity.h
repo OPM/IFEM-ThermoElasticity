@@ -7,8 +7,8 @@
 //!
 //! \author Arne Morten Kvarving / SINTEF
 //!
-//! \brief Wrapper equipping the linear elasticity solver with dummy
-//! time-stepping support and temperature coupling.
+//! \brief Wrapper equipping the linear elasticity solver with
+//! dummy time-stepping support and temperature coupling.
 //!
 //==============================================================================
 
@@ -38,6 +38,7 @@ public:
   {
     Dim::myHeading = "Thermo-Elasticity solver";
     Dim::msgLevel = 1; // prints the solution summary only
+    startT = 0.0;
   }
 
   //! \brief The destructor clears the VTF-file pointer.
@@ -60,6 +61,8 @@ public:
   //! \param[in] nBlock Running VTF block counter
   bool saveStep(const TimeStep& tp, int& nBlock)
   {
+    if (tp.time.t+0.001*tp.time.dt < startT) return true;
+
     PROFILE1("SIMThermoElasticity::saveStep");
 
     if (tp.step > 0 && this->getNoResultPoints() > 0)
@@ -83,6 +86,8 @@ public:
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp)
   {
+    if (tp.time.t+0.001*tp.time.dt < startT) return true;
+
     PROFILE1("SIMThermoElasticity::solveStep");
 
     this->setMode(SIM::STATIC);
@@ -135,7 +140,10 @@ protected:
 
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
-      if (!strcasecmp(child->Value(),"anasol"))
+      if (!strcasecmp(child->Value(),"start"))
+        utl::getAttribute(child,"time",startT);
+
+      else if (!strcasecmp(child->Value(),"anasol"))
       {
         std::string type;
         utl::getAttribute(child,"type",type,true);
@@ -186,6 +194,7 @@ protected:
   }
 
 private:
+  double      startT;    //!< Start time for the elasticity solver
   Vector      sol;       //!< Primary solution vector
   std::string pointfile; //!< File name for result point output
 };
