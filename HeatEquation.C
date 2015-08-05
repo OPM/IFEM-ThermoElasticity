@@ -20,6 +20,7 @@
 #include "MaterialBase.h"
 #include "Vec3Oper.h"
 #include "HeatQuantities.h"
+#include "WeakOperators.h"
 
 
 HeatEquation::HeatEquation (unsigned short int n, int order) :
@@ -48,18 +49,10 @@ bool HeatEquation::evalInt (LocalIntegral& elmInt,
     theta += -bdf[1+t]/time.dt*val;
   }
 
-  // loop over test functions (i) and basis functions (j)
-  for (size_t i = 1; i <= fe.N.size(); ++i) {
-    for (size_t j = 1; j <= fe.N.size(); ++j) {
-      double laplace = 0.0;
-      for (size_t k = 1;k <= nsd; ++k)
-        laplace += fe.dNdX(i,k)*fe.dNdX(j,k);
+  WeakOperators::Laplacian(elMat.A[0], fe, kappa);
+  WeakOperators::Mass(elMat.A[0], fe, rhocp*bdf[0]/time.dt);
 
-      elMat.A[0](i,j) += (kappa*laplace+rhocp*bdf[0]/time.dt*fe.N(i)*fe.N(j))*fe.detJxW;
-    }
-  }
-
-  elMat.b.front().add(fe.N, rhocp*theta*fe.detJxW);
+  WeakOperators::Source(elMat.b.front(), fe, rhocp*theta);
 
   return true;
 }
@@ -86,7 +79,7 @@ bool HeatEquation::evalBou (LocalIntegral& elmInt,
   double kappa = mat?mat->getThermalConductivity(val):1.0;
 
   // Integrate the Neumann value
-  elMat.b.front().add(fe.N,kappa*T*fe.detJxW);
+  WeakOperators::Source(elMat.b.front(), fe, kappa*T);
 
   return true;
 }
@@ -153,14 +146,16 @@ bool HeatEquation::WeakDirichlet::evalBou(LocalIntegral& elmInt,
   double val = fe.N.dot(elMat.vec[0]);
   double kappa = mat?mat->getThermalConductivity(val):1.0;
 
+  WeakOperators::Mass(elMat.A.front(), fe, -envCond);
+  WeakOperators::Source(elMat.b.front(), fe, q);
+
   for (size_t i=1;i<=fe.N.size();++i) {
     for (size_t j=1;j<=fe.N.size();++j) {
       double dT=0;
       for (size_t k=1;k<=nsd;++k)
         dT += fe.dNdX(j,k)*normal[k-1];
 
-      elMat.A.front()(i,j) += (kappa*dT-envCond*(fe.N(j)-envT))*fe.N(i)*fe.detJxW;
-      elMat.b.front()(i) += q*fe.N(i)*fe.detJxW;
+      elMat.A.front()(i,j) += (kappa*dT+envT*envCond)*fe.N(i)*fe.detJxW;
     }
   }
 

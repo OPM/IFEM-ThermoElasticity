@@ -73,7 +73,7 @@ list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
                   ${PROJECT_SOURCE_DIR}/Test
                   ThermoElasticity
-                  CommonThermo ${IFEM_LIBRARIES})
+                  CommonThermo CommonIFEM ${IFEM_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
