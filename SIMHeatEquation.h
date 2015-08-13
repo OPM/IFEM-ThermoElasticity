@@ -7,7 +7,7 @@
 //!
 //! \author Arne Morten Kvarving / SINTEF
 //!
-//! \brief Solution driver for the Heat equation
+//! \brief Solution driver for the Heat equation.
 //!
 //==============================================================================
 
@@ -28,8 +28,8 @@
 #include "Utilities.h"
 #include "tinyxml.h"
 #include "LinIsotropic.h"
-#include <fstream>
 #include "HeatQuantities.h"
+#include <fstream>
 #include <memory>
 
 
@@ -69,19 +69,19 @@ public:
   struct SetupProps
   {
     bool shareGrid;
-    IntegrandBase* integrand;
     SIMoutput* share;
 
-    SetupProps() : shareGrid(false), integrand(NULL), share(NULL) {}
+    SetupProps() : shareGrid(false), share(NULL) {}
   };
 
   //! \brief Default constructor.
   //! \param[in] order Order of temporal integration (1 or 2)
   SIMHeatEquation(int order) :
-    Dim(1), he(Dim::dimension,order), wdc(Dim::dimension), inputContext("heatequation")
+    Dim(1), he(Dim::dimension,order), wdc(Dim::dimension)
   {
     Dim::myProblem = &he;
     Dim::myHeading = "Heat equation solver";
+    inputContext = "heatequation";
   }
 
   //! \brief The destructor zero out the integrand pointer (deleted by parent).
@@ -100,27 +100,29 @@ public:
       return this->Dim::parse(elem);
 
     const TiXmlElement* child = elem->FirstChildElement();
-    for (; child; child = child->NextSiblingElement()) {
+    for (; child; child = child->NextSiblingElement())
       if (strcasecmp(child->Value(),"anasol") == 0) {
-        std::cout <<"\tAnalytical solution: Expression"<< std::endl;
+        IFEM::cout <<"\tAnalytical solution: Expression"<< std::endl;
         if (!Dim::mySol)
           Dim::mySol = new AnaSol(child);
 
         // Define the analytical boundary traction field
         int code = 0;
-        if (utl::getAttribute(child,"code",code)) {
+        if (utl::getAttribute(child,"code",code))
           if (code > 0 && Dim::mySol->getScalarSecSol())
           {
             this->setPropertyType(code,Property::NEUMANN);
             Dim::myVectors[code] = Dim::mySol->getScalarSecSol();
           }
-        }
-      } else if (!strcasecmp(child->Value(),"isotropic")) {
+      }
+
+      else if (!strcasecmp(child->Value(),"isotropic")) {
         int code = this->parseMaterialSet(child,mVec.size());
-        std::cout <<"\tMaterial code "<< code <<":";
+        IFEM::cout <<"\tMaterial code "<< code <<":";
         mVec.push_back(std::unique_ptr<typename Integrand::MaterialType>(new typename Integrand::MaterialType));
         mVec.back()->parse(child);
       }
+
       else if (!strcasecmp(child->Value(),"heatflux") ||
                !strcasecmp(child->Value(),"storedenergy")) {
         BoundaryFlux flux;
@@ -136,20 +138,25 @@ public:
         }
         strcasecmp(child->Value(),"heatflux") ? senergy.push_back(flux) :
                                                 fluxes.push_back(flux);
-      } else if (!strcasecmp(child->Value(),"environmentproperties")) {
+      }
+
+      else if (!strcasecmp(child->Value(),"environmentproperties")) {
           double T=273.5, alpha=1.0;
           utl::getAttribute(child,"T",T);
           utl::getAttribute(child,"alpha",alpha);
           wdc.setEnvTemperature(T);
           wdc.setEnvConductivity(alpha);
-      } else if (!strcasecmp(child->Value(),"postprocessing")) {
+      }
+
+      else if (!strcasecmp(child->Value(),"postprocessing")) {
         const TiXmlElement* respts = child->FirstChildElement("resultpoints");
         if (respts)
           utl::getAttribute(respts,"file",pointfile);
         this->Dim::parse(child);
-      } else
+      }
+
+      else
         this->Dim::parse(child);
-    }
 
     if (!mVec.empty()) {
       wdc.setMaterial(mVec.front().get());
@@ -162,16 +169,17 @@ public:
   //! \brief Returns the name of this simulator (for use in the HDF5 export).
   virtual std::string getName() const { return "HeatEquation"; }
 
-  void init(const TimeStep& tp)
+  //! \brief Initializes the temperature solution vectors.
+  void initSol()
   {
-    // Initialize temperature solution vectors
-    size_t n, nSols = this->getNoSolutions();
+    size_t nSols = this->getNoSolutions();
     temperature.resize(nSols);
     std::string str = "temperature1";
-    for (n = 0; n < nSols; n++, str[11]++) {
+    for (size_t n = 0; n < nSols; n++, str[11]++) {
       temperature[n].resize(this->getNoDOFs(),true);
       this->registerField(str,temperature[n]);
     }
+    SIM::setInitialConditions(*this);
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -203,13 +211,15 @@ public:
   {
     PROFILE1("SIMHeatEquation::solveStep");
 
-    if (Dim::myPid == 0 && Dim::msgLevel >= 0)
-      std::cout <<"\n  step = "<< tp.step <<"  time = "<< tp.time.t << std::endl;
+    if (Dim::msgLevel >= 0)
+      IFEM::cout <<"\n  step = "<< tp.step <<"  time = "<< tp.time.t << std::endl;
 
     Vector dummy;
     this->updateDirichlet(tp.time.t, &dummy);
 
-    if (!this->assembleSystem(tp.time, temperature))
+    this->setMode(SIM::DYNAMIC);
+    this->setQuadratureRule(Dim::opt.nGauss[0]);
+    if (!this->assembleSystem(tp.time,temperature))
       return false;
 
     if (!this->solveSystem(temperature.front(),Dim::msgLevel-1,"temperature "))
@@ -220,16 +230,36 @@ public:
       size_t iMax[1];
       double dMax[1];
       double normL2 = this->solutionNorms(temperature.front(),dMax,iMax,1);
-      if (Dim::myPid == 0)
-        std::cout <<"  Temperature summary: L2-norm         : "<< normL2
-                  <<"\n                       Max temperature : "<< dMax[0]
-                  << std::endl;
+      IFEM::cout <<"  Temperature summary: L2-norm         : "<< normL2
+                 <<"\n                       Max temperature : "<< dMax[0]
+                 << std::endl;
     }
 
-    return true;
+    return this->postSolve(tp);
   }
 
-  bool postSolve(const TimeStep& tp,bool) {return true;}
+  //! \brief Postprocesses the solution of current time step.
+  bool postSolve(const TimeStep& tp, bool = false)
+  {
+    Vectors gNorm;
+    this->setMode(SIM::RECOVERY);
+    this->setQuadratureRule(Dim::opt.nGauss[1]);
+    if (!this->solutionNorms(tp.time,temperature,gNorm))
+      return false;
+    else if (gNorm.empty())
+      return true;
+
+    IFEM::cout <<"Energy norm |u^h| = a(u^h,u^h)^0.5   : "<< gNorm[0](1);
+    if (gNorm[0](2) != 0.0)
+      IFEM::cout <<"\nExternal energy ((f,u^h)+(t,u^h)^0.5 : "<< gNorm[0](2);
+    if (this->haveAnaSol() && gNorm[0].size() >= 4)
+      IFEM::cout <<"\nExact norm  |u|   = a(u,u)^0.5       : "<< gNorm[0](3)
+                 <<"\nExact error a(e,e)^0.5, e=u-u^h      : "<< gNorm[0](4)
+                 <<"\nExact relative error (%) : "
+                 << gNorm[0](4)/gNorm[0](3)*100.0;
+    IFEM::cout << std::endl;
+    return true;
+  }
 
   //! \brief Compute and save a boundary heat flux or the stored energy in a volume
   //! \param[in] bf Description of integration domain
@@ -342,9 +372,6 @@ public:
 
   double externalEnergy(const Vectors&) const { return 0.0; }
 
-  //! \brief Sets initial conditions.
-  void setInitialConditions() { SIM::setInitialConditions(*this); }
-
   //! \brief Set context to read from input file
   void setContext(int ctx)
   {
@@ -359,9 +386,10 @@ public:
   void setCommunicator(const MPI_Comm* comm) { Dim::adm.setCommunicator(comm); }
 #endif
 
-  //! \brief Set the function for the initial temperature field
-  //! \param f The function
+  //! \brief Sets the function of the initial temperature field.
   void setInitialTemperature(const RealFunc* f) { he.setInitialTemperature(f); }
+  //! \brief Returns the function of the initial temperature field.
+  const RealFunc* getInitialTemperature() const { return he.getInitialTemperature(); }
 
 protected:
   //! \brief Performs some pre-processing tasks on the FE model.
@@ -376,6 +404,7 @@ protected:
 
     return true;
   }
+
   //! \brief Initializes material properties for integration of interior terms.
   //! \param[in] propInd Physical property index
   virtual bool initMaterial(size_t propInd)
@@ -411,13 +440,11 @@ protected:
     // Couple the weak Dirichlet integrand to the generic Neumann property codes
     PropertyVec::iterator p;
     for (p = Dim::myProps.begin(); p != Dim::myProps.end(); p++)
-      if (p->pcode == Property::NEUMANN_GENERIC ||
-          p->pcode == Property::ROBIN)
-      {
+      if (p->pcode == Property::NEUMANN_GENERIC || p->pcode == Property::ROBIN)
         if (Dim::myInts.find(p->pindx) == Dim::myInts.end())
           Dim::myInts.insert(std::make_pair(p->pindx,&wdc));
-      }
   }
+
 private:
   Integrand he;                 //!< Integrand
   typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
@@ -455,16 +482,12 @@ struct SolverConfigurator< SIMHeatEquation<Dim,Integrand> > {
     if (!ad.preprocess())
       return 3;
 
-    // Initialize the linear solvers
-    ad.setMode(SIM::DYNAMIC);
+    // Initialize the linear equation system solver
     ad.initSystem(ad.opt.solver,1,1,false);
-    ad.setQuadratureRule(ad.opt.nGauss[0]);
+    ad.initSol();
 
-    // Time-step loop
-    ad.init(TimeStep());
-    if (props.share)
+    if (props.shareGrid)
       ad.setVTF(props.share->getVTF());
-    ad.setInitialConditions();
 
     return 0;
   }

@@ -11,10 +11,6 @@
 //==============================================================================
 
 #include "SIM2D.h"
-#include "DataExporter.h"
-#include "Functions.h"
-#include "MatVec.h"
-#include "Property.h"
 #include "SIMHeatEquation.h"
 #include "SIMThermalCoupling.h"
 #include "HeatEquation.h"
@@ -23,9 +19,9 @@
 
 TEST(TestSIMThermalCoupling, Dependencies)
 {
-  typedef SIMHeatEquation<SIM2D, HeatEquation> Heat2D;
+  typedef SIMHeatEquation<SIM2D,HeatEquation> Heat2D;
   Heat2D sim(1);
-  sim.init(TimeStep());
+  sim.initSol();
   Vector dummy;
   sim.registerField("foobar", dummy);
   SIMThermalCoupling<Heat2D,Heat2D> couple1(sim, sim, {CouplingDef("foobar", 2, 1)});
