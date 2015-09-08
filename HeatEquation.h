@@ -100,6 +100,13 @@ public:
   //! \brief Defines the material properties.
   void setMaterial(Material* material) { mat = material; }
 
+  //! \brief Defines the source term
+  void setSource(RealFunc* src) { sourceTerm = src; }
+
+  //! \brief Evaluates the source term (if any) at a specified point.
+  //! \param[in] X Cartesian coordinate of current integration point
+  double getSource(const Vec3& X) const;
+
   //! \brief Obtain the current material.
   const Material* getMaterial() const { return mat; }
 
@@ -144,6 +151,7 @@ private:
   Material* mat;            //!< Material parameters
   RealFunc* flux;           //!< Pointer to the heat flux field
   const RealFunc* init;     //!< Initial temperature function
+  RealFunc* sourceTerm;     //!< Pointer to source term
 };
 
 

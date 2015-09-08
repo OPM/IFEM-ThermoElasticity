@@ -91,6 +91,20 @@ public:
     Dim::myInts.clear();
   }
 
+  //! \brief Parses a source term XML element
+  void parseSource(const TiXmlElement* elem)
+  {
+    std::string type;
+    utl::getAttribute(elem, "type", type, true);
+
+    if (type == "expression" && elem->FirstChild()) {
+      IFEM::cout << "\n\tSource function:";
+      RealFunc *func = utl::parseRealFunc(elem->FirstChild()->Value(), type);
+      IFEM::cout << std::endl;
+      he.setSource(func);
+    }
+  }
+
   using Dim::parse;
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
@@ -147,6 +161,9 @@ public:
         wdc.setEnvTemperature(T);
         wdc.setEnvConductivity(alpha);
       }
+
+      else if (!strcasecmp(child->Value(),"source"))
+        this->parseSource(child);
 
       else
         this->Dim::parse(child);

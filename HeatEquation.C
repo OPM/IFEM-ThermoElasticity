@@ -26,6 +26,7 @@ HeatEquation::HeatEquation (unsigned short int n, int order)
   : nsd(n), bdf(order), mat(NULL), flux(NULL), init(NULL)
 {
   primsol.resize(order+1);
+  sourceTerm = nullptr;
 }
 
 
@@ -50,7 +51,7 @@ bool HeatEquation::evalInt (LocalIntegral& elmInt,
 
   WeakOperators::Laplacian(A,fe,kappa);
   WeakOperators::Mass(A,fe,rhocp*bdf[0]/time.dt);
-  WeakOperators::Source(b,fe,rhocp*theta);
+  WeakOperators::Source(b,fe,rhocp*theta+this->getSource(X));
 
   return true;
 }
@@ -257,4 +258,12 @@ const char* HeatEquationNorm::getName (size_t i, size_t j,
 bool HeatEquationNorm::hasElementContributions (size_t i, size_t j) const
 {
   return i > 1 || j != 2;
+}
+
+
+double HeatEquation::getSource (const Vec3& X) const
+{
+  if (sourceTerm)
+    return (*sourceTerm)(X);
+  return 0.0;
 }
