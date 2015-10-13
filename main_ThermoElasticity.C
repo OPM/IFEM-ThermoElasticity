@@ -41,7 +41,7 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
   typedef SIMThermoElasticity<Dim>                        ElasticitySolver;
   typedef SIMThermalCoupling<HeatSolver,ElasticitySolver> CoupledSolver;
 
-  HeatSolver               tempModel(tIt==TimeIntegration::BE?1:2);
+  HeatSolver               tempModel(TimeIntegration::Order(tIt));
   ElasticitySolver         solidModel;
   CoupledSolver            model(tempModel,solidModel);
   SIMSolver<CoupledSolver> solver(model);
@@ -113,6 +113,7 @@ int main (int argc, char** argv)
   char* infile = NULL;
   char* restartfile = NULL;
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
+  Elasticity::wantPrincipalStress = true;
 
   IFEM::Init(argc, argv);
 

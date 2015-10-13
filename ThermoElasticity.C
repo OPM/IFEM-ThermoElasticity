@@ -12,11 +12,9 @@
 //==============================================================================
 
 #include "ThermoElasticity.h"
-#include "FiniteElement.h"
 #include "MaterialBase.h"
 #include "ElmMats.h"
 #include "Tensor.h"
-#include "Functions.h"
 #include "Utilities.h"
 
 
@@ -101,17 +99,5 @@ bool ThermoElasticity::evalSol (Vector& s,
     return false;
   }
 
-  // Evaluate the stress tensor
-  if (!this->evalSol(s,eV,fe,X,true))
-    return false;
-
-  // Find the maximum values for each quantity. This block must be performed
-  // serially on multi-threaded runs too, due to the update of the maxVal array
-  // which is a member of the Elasticity class. Therefore the critical pragma.
-#pragma omp critical
-  for (size_t j = 0; j < s.size() && j < maxVal.size(); j++)
-    if (fabs(s[j]) > fabs(maxVal[j].second))
-      maxVal[j] = std::make_pair(X,s[j]);
-
-  return true;
+  return this->evalSol2(s,eV,fe,X);
 }
