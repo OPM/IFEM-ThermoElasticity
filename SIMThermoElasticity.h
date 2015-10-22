@@ -81,6 +81,8 @@ public:
   }
 
   //! \brief Dummy method.
+  bool init(const TimeStep&) { return true; }
+  //! \brief Dummy method.
   bool advanceStep(TimeStep&) { return true; }
 
   //! \brief Computes the solution for the current time step.

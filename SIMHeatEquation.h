@@ -194,12 +194,14 @@ public:
     return this->writeGlvG(geoBlk,fileName);
   }
 
+  //! \brief Dummy method.
+  bool init(const TimeStep&) { return true; }
+
   //! \brief Advances the time step one step forward.
   virtual bool advanceStep(TimeStep& tp)
   {
     // Update temperature vectors between time steps
-    const int nNusols = temperature.size();
-    for (int n = nNusols-1; n > 0; n--)
+    for (int n = temperature.size()-1; n > 0; n--)
       temperature[n] = temperature[n-1];
 
     he.advanceStep();
