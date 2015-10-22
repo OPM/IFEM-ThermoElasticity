@@ -70,8 +70,9 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
                                      tempModel.getDumpInterval(),
                                      TimeIntegration::Steps(tIt));
 
-  if (!solver.solveProblem(infile, exporter))
-    return 5;
+  int res=solver.solveProblem(infile, exporter);
+  if (res)
+    return res;
 
   delete exporter;
   return 0;
