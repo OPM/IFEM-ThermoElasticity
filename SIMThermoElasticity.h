@@ -15,7 +15,7 @@
 #ifndef _SIM_THERMO_ELASTICITY_H_
 #define _SIM_THERMO_ELASTICITY_H_
 
-#include "SIMLinEl.h"
+#include "SIMElasticity.h"
 #include "SIMSolver.h"
 #include "ThermoElasticity.h"
 #include "Linear/AnalyticSolutions.h"
@@ -28,13 +28,13 @@
   \brief Driver wrapping the linear elasticity solver with an ISolver interface.
 */
 
-template<class Dim> class SIMThermoElasticity : public SIMLinEl<Dim>
+template<class Dim> class SIMThermoElasticity : public SIMElasticity<Dim>
 {
 public:
   typedef bool SetupProps; //!< Dummy declaration (no setup properties required)
 
   //! \brief Default constructor.
-  SIMThermoElasticity(bool checkRHS = false) : SIMLinEl<Dim>(checkRHS)
+  SIMThermoElasticity(bool checkRHS = false) : SIMElasticity<Dim>(checkRHS)
   {
     Dim::myHeading = "Thermo-Elasticity solver";
     Dim::msgLevel = 1; // prints the solution summary only
@@ -174,7 +174,7 @@ protected:
       else
         this->getIntegrand()->parse(child);
 
-    return this->SIMLinEl<Dim>::parse(elem);
+    return this->SIMElasticity<Dim>::parse(elem);
   }
 
   //! \brief Returns the actual integrand.
@@ -183,7 +183,7 @@ protected:
     if (!Dim::myProblem)
     {
       if (Dim::dimension == 2)
-        Dim::myProblem = new ThermoElasticity(2,SIMLinEl2D::axiSymmetry);
+        Dim::myProblem = new ThermoElasticity(2,this->axiSymmetry);
       else
         Dim::myProblem = new ThermoElasticity(Dim::dimension);
     }

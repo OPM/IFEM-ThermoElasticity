@@ -70,12 +70,10 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
                                      tempModel.getDumpInterval(),
                                      TimeIntegration::Steps(tIt));
 
-  int res=solver.solveProblem(infile, exporter);
-  if (res)
-    return res;
+  int res = solver.solveProblem(infile,exporter);
 
   delete exporter;
-  return 0;
+  return res;
 }
 
 
@@ -122,7 +120,7 @@ int main (int argc, char** argv)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
     else if (!strncmp(argv[i],"-2Dpstra",8))
-      twoD = SIMLinEl2D::planeStrain = true;
+      twoD = SIMElasticity<SIM2D>::planeStrain = true;
     else if (!strncmp(argv[i],"-2D",3))
       twoD = true;
     else if (!strncmp(argv[i],"-msg",4) && i < argc-1)

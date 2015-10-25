@@ -33,8 +33,7 @@ endif(NOT IFEM_PRECONFIGURED)
 
 file(GLOB LinEl_SRCS ../Elasticity/*.C
                      ../Elasticity/Linear/LinearElasticity.C
-                     ../Elasticity/Linear/AnalyticSolutions.C
-                     ../Elasticity/Dynamic/SIMLinEl.C)
+                     ../Elasticity/Linear/AnalyticSolutions.C)
 
 set(ThermoEl_SRCS HeatEquation.C
                   ThermoElasticity.C)

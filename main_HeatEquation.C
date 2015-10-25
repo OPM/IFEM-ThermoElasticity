@@ -35,9 +35,9 @@
   template<class Dim>
 int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
 {
-  typedef SIMHeatEquation<Dim,HeatEquation>                HeatSolver;
+  typedef SIMHeatEquation<Dim,HeatEquation> HeatSolver;
 
-  HeatSolver            tempModel(tIt==TimeIntegration::BE?1:2);
+  HeatSolver            tempModel(TimeIntegration::Order(tIt));
   SIMSolver<HeatSolver> solver(tempModel);
 
   utl::profiler->start("Model input");
@@ -62,14 +62,12 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
                                      tempModel.getDumpInterval(),
                                      TimeIntegration::Steps(tIt));
 
-  int res=solver.solveProblem(infile, exporter);
-  if (res)
-    return res;
+  int res = solver.solveProblem(infile,exporter);
 
   tempModel.printFinalNorms(solver.getTimePrm());
 
   delete exporter;
-  return 0;
+  return res;
 }
 
 
@@ -139,7 +137,7 @@ int main (int argc, char** argv)
   }
 
   std::cout <<"\n >>> IFEM Heat equation solver <<<"
-            <<"\n ====================================\n"
+            <<"\n =================================\n"
             <<"\n Executing command:\n";
   for (int i = 0; i < argc; i++) IFEM::cout <<" "<< argv[i];
   IFEM::cout <<"\n\nInput file: "<< infile;
