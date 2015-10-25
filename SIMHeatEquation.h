@@ -141,18 +141,11 @@ public:
       }
 
       else if (!strcasecmp(child->Value(),"environmentproperties")) {
-          double T=273.5, alpha=1.0;
-          utl::getAttribute(child,"T",T);
-          utl::getAttribute(child,"alpha",alpha);
-          wdc.setEnvTemperature(T);
-          wdc.setEnvConductivity(alpha);
-      }
-
-      else if (!strcasecmp(child->Value(),"postprocessing")) {
-        const TiXmlElement* respts = child->FirstChildElement("resultpoints");
-        if (respts)
-          utl::getAttribute(respts,"file",pointfile);
-        this->Dim::parse(child);
+        double T = 273.5, alpha = 1.0;
+        utl::getAttribute(child,"T",T);
+        utl::getAttribute(child,"alpha",alpha);
+        wdc.setEnvTemperature(T);
+        wdc.setEnvConductivity(alpha);
       }
 
       else
@@ -283,7 +276,7 @@ public:
       energy.assemble(integral);
     }
 
-    if (integral.size() == 0)
+    if (integral.empty())
       return false;
 
     std::ostream* os = &std::cout;
@@ -298,14 +291,9 @@ public:
 
       char line[256];
       if (tp.step == 1) {
-        if (flux) {
-          *os <<"# Heat flux over surface with code "<< bf.code << std::endl;
-          sprintf(line,"#%9s %11s\n", "time","Flux");
-        } else {
-          *os <<"# Stored energy in volumes with code "<< bf.code << std::endl;
-          sprintf(line,"#%9s %11s\n", "time","Energy");
-        }
-        sprintf(line,"#%9s %11s\n", "time","Flux");
+        *os << (flux ? "# Heat flux over surface" : "# Stored energy in volume")
+            <<" with code "<< bf.code << std::endl;
+        sprintf(line,"#%9s %11s\n", "time", flux ? "Flux" : "Energy");
         *os << line;
       }
 
@@ -335,21 +323,20 @@ public:
   {
     PROFILE1("SIMHeatEquation::saveStep");
 
+    bool ok = true;
     for (size_t i = 0; i < fluxes.size(); ++i)
-      saveIntegral(fluxes[i],tp,true);
+      ok &= this->saveIntegral(fluxes[i],tp,true);
 
     for (size_t i = 0; i < senergy.size(); ++i)
-      saveIntegral(senergy[i],tp,false);
+      ok &= this->saveIntegral(senergy[i],tp,false);
 
-    if (tp.step > 0 && this->getNoResultPoints() > 0) {
-      double old = utl::zero_print_tol;
-      utl::zero_print_tol = 1e-16;
-      this->savePoints(pointfile,temperature.front(),tp.time.t,tp.step,16);
-      utl::zero_print_tol = old;
-    }
+    double old = utl::zero_print_tol;
+    utl::zero_print_tol = 1e-16;
+    ok &= this->savePoints(temperature.front(),tp.time.t,tp.step);
+    utl::zero_print_tol = old;
 
-    if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0)
-      return true;
+    if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
+      return ok;
 
     int iDump = 1 + tp.step/Dim::opt.saveInc;
 
@@ -454,7 +441,6 @@ private:
 
   Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
-  std::string pointfile;    //!< Point result file
 
   std::vector<BoundaryFlux> fluxes;  //!< Heat fluxes to calculate
   std::vector<BoundaryFlux> senergy; //!< Stored energies to calculate

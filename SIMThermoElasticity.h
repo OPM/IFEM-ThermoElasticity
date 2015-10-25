@@ -61,20 +61,18 @@ public:
   //! \param[in] nBlock Running VTF block counter
   bool saveStep(const TimeStep& tp, int& nBlock)
   {
-    if (tp.time.t+0.001*tp.time.dt < startT) return true;
+    if (tp.time.t+0.001*tp.time.dt < startT)
+      return true;
 
     PROFILE1("SIMThermoElasticity::saveStep");
 
-    if (tp.step > 0 && this->getNoResultPoints() > 0)
-    {
-      double old_tol = utl::zero_print_tol;
-      utl::zero_print_tol = 1e-16;
-      this->savePoints(pointfile,sol,tp.time.t,tp.step,16);
-      utl::zero_print_tol = old_tol;
-    }
+    double old_tol = utl::zero_print_tol;
+    utl::zero_print_tol = 1e-16;
+    bool ok = this->savePoints(sol,tp.time.t,tp.step);
+    utl::zero_print_tol = old_tol;
 
-    if (Dim::opt.format < 0)
-      return true;
+    if (Dim::opt.format < 0 || !ok)
+      return ok;
 
     int iDump = 1 + tp.step/Dim::opt.saveInc;
     return this->writeGlvS(sol,iDump,nBlock);
@@ -88,7 +86,8 @@ public:
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp)
   {
-    if (tp.time.t+0.001*tp.time.dt < startT) return true;
+    if (tp.time.t+0.001*tp.time.dt < startT)
+      return true;
 
     PROFILE1("SIMThermoElasticity::solveStep");
 
@@ -170,12 +169,6 @@ protected:
                                              Dim::dimension == 3, polar));
         }
       }
-      else if (!strcasecmp(child->Value(),"postprocessing"))
-      {
-        const TiXmlElement* respts = child->FirstChildElement("resultpoints");
-        if (respts)
-          utl::getAttribute(respts,"file",pointfile);
-      }
       else
         this->getIntegrand()->parse(child);
 
@@ -196,9 +189,8 @@ protected:
   }
 
 private:
-  double      startT;    //!< Start time for the elasticity solver
-  Vector      sol;       //!< Primary solution vector
-  std::string pointfile; //!< File name for result point output
+  Vector sol;    //!< Primary solution vector
+  double startT; //!< Start time for the elasticity solver
 };
 
 

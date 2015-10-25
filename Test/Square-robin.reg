@@ -16,8 +16,8 @@ Number of unknowns    576
 L2-norm            : 0
 Max X-displacement : 1.75674e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00201827
-# Stored energy in volumes with code 1000
-#     time        Flux
+# Stored energy in volume with code 1000
+#     time      Energy
   0.100000    -0.49273
   Temperature summary: L2-norm         : 127.04
                        Max temperature : 149.928
