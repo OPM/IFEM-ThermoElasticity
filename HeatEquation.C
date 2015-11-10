@@ -20,6 +20,7 @@
 #include "ElmNorm.h"
 #include "MaterialBase.h"
 #include "Vec3Oper.h"
+#include "AnaSol.h"
 
 
 HeatEquation::HeatEquation (unsigned short int n, int order)
@@ -186,10 +187,26 @@ bool HeatEquationNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   if (!fe.dNdX.multiply(elmInt.vec.front(),gradUh,true))
     return false;
 
-  // Integrate the energy norm, a(U^h,U^h)
   size_t ip = 0;
+  // Integrate the L2 norm, (U^h, U^h)
+  pnorm[ip++] += Uh*Uh*fe.detJxW;
+
+  // Integrate the energy norm, a(U^h,U^h)
   pnorm[ip++] = 0.5*kappa*gradUh.dot(gradUh)*fe.detJxW;
   ip++; // Currently no external energy yet
+
+  if (anasol && anasol->getScalarSol()) {
+    double T = (*anasol->getScalarSol())(X);
+    pnorm[ip++] += T*T*fe.detJxW; // L2 norm of analytical solution
+    pnorm[ip++] += (T-Uh)*(T-Uh)*fe.detJxW; // L2 norm of error
+  }
+
+  if (anasol && anasol->getScalarSecSol()) {
+    Vec3 dT = (*anasol->getScalarSecSol())(X);
+    pnorm[ip++] += 0.5*kappa*dT*dT*fe.detJxW;
+    pnorm[ip++] += 0.5*kappa*(dT-gradUh)*(dT-gradUh)*fe.detJxW;
+  }
+
 
   // TODO: Add energy-norm of exact error based on analytical solution
   size_t i, j;
@@ -219,7 +236,7 @@ size_t HeatEquationNorm::getNoFields (int group) const
     for (size_t i = 0; i < prjsol.size(); i++)
       nf += prjsol.empty() ? 0 : 1;
   else
-    nf = /*anasol ? 4 :*/ 2;
+    nf = anasol ? 7 : 3;
 
   return nf;
 }
@@ -231,9 +248,11 @@ const char* HeatEquationNorm::getName (size_t i, size_t j,
   if (i == 0 || j == 0 || j > 4)
     return this->NormBase::getName(i,j,prefix);
 
-  static const char* s[8] = {
+  static const char* s[] = {
+    "(theta^h,theta^h)^0.5",
     "a(theta^h,theta^h)^0.5",
     "(q,theta^h)^0.5",
+    "(theta, theta)^0.5",
     "a(theta,theta)^0.5",
     "a(e,e)^0.5, e=theta-theta^h",
     "a(theta^r,theta^r)^0.5",

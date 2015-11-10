@@ -253,24 +253,30 @@ public:
   //! \brief Postprocesses the solution of current time step.
   bool postSolve(const TimeStep& tp, bool = false)
   {
+    return true;
+  }
+
+  //! \brief Evaluates and prints out solution norms.
+  void printFinalNorms(const TimeStep& tp)
+  {
     Vectors gNorm;
     this->setMode(SIM::RECOVERY);
     this->setQuadratureRule(Dim::opt.nGauss[1]);
     if (!this->solutionNorms(tp.time,temperature,gNorm))
-      return false;
+      return;
     else if (gNorm.empty())
-      return true;
+      return;
 
-    IFEM::cout <<"Energy norm |u^h| = a(u^h,u^h)^0.5   : "<< gNorm[0](1);
-    if (gNorm[0](2) != 0.0)
-      IFEM::cout <<"\nExternal energy ((f,u^h)+(t,u^h)^0.5 : "<< gNorm[0](2);
-    if (this->haveAnaSol() && gNorm[0].size() >= 4)
-      IFEM::cout <<"\nExact norm  |u|   = a(u,u)^0.5       : "<< gNorm[0](3)
-                 <<"\nExact error a(e,e)^0.5, e=u-u^h      : "<< gNorm[0](4)
-                 <<"\nExact relative error (%) : "
-                 << gNorm[0](4)/gNorm[0](3)*100.0;
+    IFEM::cout <<"L2 norm |t^h| = a(t^h,t^h)^0.5      : "<< gNorm[0](1);
+    IFEM::cout <<"\nH1 norm |t^h| = a(t^h,t^h)^0.5      : "<< gNorm[0](2);
+    if (this->haveAnaSol() && gNorm[0].size() >= 7)
+      IFEM::cout <<"\nL2 norm |t|   = (t,t)^0.5           : "<< gNorm[0](4)
+                 <<"\nH1 norm |t|   = a(t,t)^0.5          : "<< gNorm[0](6)
+                 <<"\nL2 norm |e|   = (e,e)^0,5, e=t-t^h  : "<< gNorm[0](5)
+                 <<"\nH1 norm |e|   = a(e,e)^0.5, e=t-t^h : "<< gNorm[0](7)
+                 <<"\nExact relative error (%)            : "
+                 << gNorm[0](7)/gNorm[0](6)*100.0;
     IFEM::cout << std::endl;
-    return true;
   }
 
   //! \brief Compute and save a boundary heat flux or the stored energy in a volume

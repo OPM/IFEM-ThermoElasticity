@@ -66,6 +66,8 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
   if (res)
     return res;
 
+  tempModel.printFinalNorms(solver.getTimePrm());
+
   delete exporter;
   return 0;
 }

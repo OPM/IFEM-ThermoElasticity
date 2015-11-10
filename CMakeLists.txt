@@ -66,6 +66,7 @@ else(IFEM_USE_PARALLEL_PETSC)
   ifem_add_test(Square-robin.reg ThermoElasticity)
   ifem_add_test(Annulus-heat.reg HeatEquation)
   ifem_add_test(Annulus-heat-be.reg HeatEquation)
+  ifem_add_test(Square-heat.reg HeatEquation)
 endif(IFEM_USE_PARALLEL_PETSC)
 list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 
