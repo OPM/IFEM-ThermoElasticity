@@ -39,7 +39,7 @@ file(GLOB LinEl_SRCS ../Elasticity/*.C
 set(ThermoEl_SRCS HeatEquation.C
                   ThermoElasticity.C)
 
-add_library(CommonThermo ${LinEl_SRCS} ${ThermoEl_SRCS})
+add_library(CommonThermo STATIC ${LinEl_SRCS} ${ThermoEl_SRCS})
 
 add_executable(ThermoElasticity main_ThermoElasticity.C)
 add_executable(HeatEquation main_HeatEquation.C)
