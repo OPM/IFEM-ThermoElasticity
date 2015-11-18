@@ -114,11 +114,11 @@ public:
 
   //! \brief Returns the name of the primary solution field.
   //! \param[in] prefix Name prefix
-  virtual std::string getField1Name(size_t, const char* prefix = NULL) const;
+  virtual std::string getField1Name(size_t, const char* prefix = nullptr) const;
   //! \brief Returns the name of a secondary solution field component.
   //! \param[in] i Field component index
   //! \param[in] prefix Name prefix for all components
-  virtual std::string getField2Name(size_t i, const char* prefix = NULL) const;
+  virtual std::string getField2Name(size_t i, const char* prefix = nullptr) const;
 
   //! \brief Sets the function of the initial temperature field.
   void setInitialTemperature(const RealFunc* f)  { init = f; }
@@ -128,13 +128,13 @@ public:
   //! \brief Returns a pointer to an Integrand for boundary force evaluation.
   //! \note The Integrand is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer returned.
-  virtual ForceBase* getForceIntegrand(const Vec3*, AnaSol* = NULL) const;
+  virtual ForceBase* getForceIntegrand(const Vec3*, AnaSol* = nullptr) const;
 
   //! \brief Returns a pointer to an Integrand for solution norm evaluation.
   //! \note The Integrand is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer returned.
   //! \param[in] asol Pointer to analytical solution field (optional)
-  virtual NormBase* getNormIntegrand(AnaSol* asol = NULL) const;
+  virtual NormBase* getNormIntegrand(AnaSol* asol = nullptr) const;
 
   //! \brief Returns the initial temperature in a point.
   //! \param[in] X The coordinate of the point.
@@ -160,7 +160,7 @@ public:
   //! \brief The only constructor initializes its data members.
   //! \param[in] p The heat equation problem to evaluate norms for
   //! \param[in] a The analytical aolution (optional)
-  HeatEquationNorm(HeatEquation& p, AnaSol* a = NULL);
+  HeatEquationNorm(HeatEquation& p, AnaSol* a = nullptr);
   //! \brief Empty destructor.
   virtual ~HeatEquationNorm() {}
 

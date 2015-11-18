@@ -71,7 +71,7 @@ public:
     bool shareGrid;
     SIMoutput* share;
 
-    SetupProps() : shareGrid(false), share(NULL) {}
+    SetupProps() : shareGrid(false), share(nullptr) {}
   };
 
   //! \brief Default constructor.
@@ -87,7 +87,7 @@ public:
   //! \brief The destructor zero out the integrand pointer (deleted by parent).
   virtual ~SIMHeatEquation()
   {
-    Dim::myProblem = NULL;
+    Dim::myProblem = nullptr;
     Dim::myInts.clear();
   }
 

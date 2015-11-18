@@ -42,7 +42,7 @@ public:
   }
 
   //! \brief The destructor clears the VTF-file pointer.
-  virtual ~SIMThermoElasticity() { this->setVTF(NULL); }
+  virtual ~SIMThermoElasticity() { this->setVTF(nullptr); }
 
   //! \brief Registers fields for output to a data exporter.
   void registerFields(DataExporter& exporter)
@@ -126,7 +126,7 @@ public:
   const RealFunc* getInitialTemperature() const
   {
     ThermoElasticity* thelp = dynamic_cast<ThermoElasticity*>(Dim::myProblem);
-    return thelp ? thelp->getInitialTemperature() : NULL;
+    return thelp ? thelp->getInitialTemperature() : nullptr;
   }
 
 protected:

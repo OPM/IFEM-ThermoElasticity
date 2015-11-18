@@ -32,7 +32,7 @@
 
 //! \brief Setup and launch the simulation.
 //! \param[in] infile The input file to process
-//! \param[in] restartfile File to restart from. NULL for no restart
+//! \param[in] restartfile File to restart from. nullptr for no restart
 //! \param[in] tit The time integration method to use. Either BE or BDF2
   template<class Dim>
 int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
@@ -63,7 +63,7 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
   model.setupDependencies();
   model.init(solver.getTimePrm());
 
-  DataExporter* exporter = NULL;
+  DataExporter* exporter = nullptr;
   if (tempModel.opt.dumpHDF5(infile))
     exporter = SIM::handleDataOutput(model, solver, tempModel.opt.hdf5,
                                      restartfile && tempModel.opt.hdf5 == restartfile,
@@ -111,8 +111,8 @@ int main (int argc, char** argv)
   utl::profiler->start("Initialization");
 
   bool twoD = false;
-  char* infile = NULL;
-  char* restartfile = NULL;
+  char* infile = nullptr;
+  char* restartfile = nullptr;
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
   Elasticity::wantPrincipalStress = true;
 
