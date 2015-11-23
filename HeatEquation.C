@@ -79,31 +79,25 @@ bool HeatEquation::evalBou (LocalIntegral& elmInt,
 }
 
 
-const char* HeatEquation::getField1Name (size_t, const char* prefix) const
+std::string HeatEquation::getField1Name (size_t, const char* prefix) const
 {
   if (!prefix)
     return "theta";
 
-  static std::string name;
-  name = prefix + std::string(" theta");
-
-  return name.c_str();
+  return prefix + std::string(" theta");
 }
 
 
-const char* HeatEquation::getField2Name (size_t i, const char* prefix) const
+std::string HeatEquation::getField2Name (size_t i, const char* prefix) const
 {
   if (i > 2)
-    return NULL;
+    return "";
 
   static const char* s[3] = { "theta_x", "theta_y", "theta_z" };
   if (!prefix)
     return s[i];
 
-  static std::string name;
-  name = prefix + std::string(" ") + s[i];
-
-  return name.c_str();
+  return prefix + std::string(" ") + s[i];
 }
 
 
@@ -242,7 +236,7 @@ size_t HeatEquationNorm::getNoFields (int group) const
 }
 
 
-const char* HeatEquationNorm::getName (size_t i, size_t j,
+std::string HeatEquationNorm::getName (size_t i, size_t j,
                                        const char* prefix) const
 {
   if (i == 0 || j == 0 || j > 4)
@@ -266,11 +260,7 @@ const char* HeatEquationNorm::getName (size_t i, size_t j,
   if (!prefix)
     return s[k];
 
-  static std::string name;
-  name = prefix + std::string(" ");
-  name += s[k];
-
-  return name.c_str();
+  return prefix + std::string(" ") + s[k];
 }
 
 
