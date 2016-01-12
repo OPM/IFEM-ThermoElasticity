@@ -226,14 +226,10 @@ bool HeatEquationNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 
 size_t HeatEquationNorm::getNoFields (int group) const
 {
-  size_t nf = 1;
   if (group < 1)
-    for (size_t i = 0; i < prjsol.size(); i++)
-      nf += prjsol.empty() ? 0 : 1;
+    return this->NormBase::getNoFields();
   else
-    nf = anasol ? 7 : 3;
-
-  return nf;
+    return anasol ? 7 : 3;
 }
 
 
