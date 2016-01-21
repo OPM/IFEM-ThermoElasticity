@@ -47,9 +47,11 @@ public:
   //! \brief Registers fields for output to a data exporter.
   void registerFields(DataExporter& exporter)
   {
+    int results = DataExporter::PRIMARY;
+    if (!Dim::opt.pSolOnly)
+      results |= DataExporter::SECONDARY;
     exporter.registerField("solid displacement", "solid displacement",
-                           DataExporter::SIM, DataExporter::PRIMARY |
-                                              DataExporter::SECONDARY);
+                           DataExporter::SIM, results);
     exporter.setFieldValue("solid displacement", this, &sol);
   }
 
