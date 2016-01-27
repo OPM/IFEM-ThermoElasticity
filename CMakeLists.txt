@@ -16,7 +16,7 @@ endif(NOT IFEM_CONFIGURED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 
 include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
-                    ../Elasticity ../Elasticity/Linear)
+                    ../Elasticity)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -29,22 +29,20 @@ endif(NOT WIN32)
 
 if (NOT IFEM_PRECONFIGURED)
   add_subdirectory(../Common CommonIFEM.dir)
+  add_subdirectory(../Elasticity Elasticity.dir)
 endif(NOT IFEM_PRECONFIGURED)
 
-file(GLOB LinEl_SRCS ../Elasticity/*.C
-                     ../Elasticity/Linear/LinearElasticity.C
-                     ../Elasticity/Linear/AnalyticSolutions.C)
-
 set(ThermoEl_SRCS HeatEquation.C
-                  ThermoElasticity.C)
+                  ThermoElasticity.C
+                  ../Elasticity/Linear/AnalyticSolutions.C)
 
-add_library(CommonThermo STATIC ${LinEl_SRCS} ${ThermoEl_SRCS})
+add_library(CommonThermo STATIC ${ThermoEl_SRCS})
 
 add_executable(ThermoElasticity main_ThermoElasticity.C)
 add_executable(HeatEquation main_HeatEquation.C)
 
-target_link_libraries(ThermoElasticity CommonThermo ${IFEM_LIBRARIES} CommonIFEM)
-target_link_libraries(HeatEquation CommonThermo ${IFEM_LIBRARIES} CommonIFEM)
+target_link_libraries(ThermoElasticity CommonThermo Elasticity ${IFEM_LIBRARIES} CommonIFEM)
+target_link_libraries(HeatEquation CommonThermo Elasticity ${IFEM_LIBRARIES} CommonIFEM)
 
 # Installation
 install(TARGETS HeatEquation ThermoElasticity DESTINATION bin)
@@ -73,7 +71,7 @@ list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
                   ${PROJECT_SOURCE_DIR}/Test
                   ThermoElasticity
-                  CommonThermo CommonIFEM ${IFEM_LIBRARIES})
+                  CommonThermo Elasticity CommonIFEM ${IFEM_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
