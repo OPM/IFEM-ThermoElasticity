@@ -8,12 +8,12 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH}
                       $ENV{HOME}/cmake/Modules)
 
 # Required packages
-set(IFEM_PRECONFIGURED ${IFEM_CONFIGURED})
 if (NOT IFEM_CONFIGURED)
   find_package(IFEM REQUIRED)
+  include_directories(${IFEM_INCLUDE_DIRS})
+  add_definitions(${IFEM_DEFINITIONS})
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 endif(NOT IFEM_CONFIGURED)
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 
 include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
                     ../Elasticity)
@@ -27,10 +27,9 @@ if(NOT WIN32)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
-if (NOT IFEM_PRECONFIGURED)
-  add_subdirectory(../Common CommonIFEM.dir)
-  add_subdirectory(../Elasticity Elasticity.dir)
-endif(NOT IFEM_PRECONFIGURED)
+if(NOT TARGET Elasticity)
+  add_subdirectory(../Elasticity Elasticity)
+endif()
 
 set(ThermoEl_SRCS HeatEquation.C
                   ThermoElasticity.C
@@ -41,18 +40,20 @@ add_library(CommonThermo STATIC ${ThermoEl_SRCS})
 add_executable(ThermoElasticity main_ThermoElasticity.C)
 add_executable(HeatEquation main_HeatEquation.C)
 
-target_link_libraries(ThermoElasticity CommonThermo Elasticity ${IFEM_LIBRARIES} CommonIFEM)
-target_link_libraries(HeatEquation CommonThermo Elasticity ${IFEM_LIBRARIES} CommonIFEM)
+target_link_libraries(ThermoElasticity CommonThermo Elasticity
+                                       IFEMAppCommon ${IFEM_LIBRARIES})
+target_link_libraries(HeatEquation CommonThermo Elasticity
+                                   IFEMAppCommon ${IFEM_LIBRARIES})
 
 # Installation
 install(TARGETS HeatEquation ThermoElasticity DESTINATION bin)
 
 # Testing
 enable_testing()
+include(IFEMTesting)
 
 # Generate regtest script with correct paths
-configure_file(${PROJECT_SOURCE_DIR}/../Common/scripts/regtest.sh.in
-               regtest.sh)
+configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
 if(IFEM_USE_PARALLEL_PETSC)
   # Add parallel tests here
@@ -71,7 +72,7 @@ list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
                   ${PROJECT_SOURCE_DIR}/Test
                   ThermoElasticity
-                  CommonThermo Elasticity CommonIFEM ${IFEM_LIBRARIES})
+                  CommonThermo Elasticity IFEMAppCommon ${IFEM_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
