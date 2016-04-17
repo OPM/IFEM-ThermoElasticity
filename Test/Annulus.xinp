@@ -22,11 +22,6 @@
     </topologysets>
   </geometry>
 
-  <thermoelasticity>
-    <isotropic E="2.0e11" nu="0.3" rho="7850.0"
-               alpha="1.2e-5" cp="500.0" kappa="50.0"/>
-  </thermoelasticity>
-
   <heatequation>
     <boundaryconditions>
       <dirichlet set="Inner" comp="1">373.0</dirichlet>
@@ -34,7 +29,9 @@
     </boundaryconditions>
   </heatequation>
 
-  <elasticity>
+  <thermoelasticity>
+    <isotropic E="2.0e11" nu="0.3" rho="7850.0"
+               alpha="1.2e-5" cp="500.0" kappa="50.0"/>
     <boundaryconditions>
       <dirichlet set="Left" comp="1"/>
       <dirichlet set="Bottom" comp="2"/>
@@ -53,7 +50,7 @@
      to output stresses in polar coordinates
     <localsystem>cylindricZ</localsystem>
 !-->
-  </elasticity>
+  </thermoelasticity>
 
   <timestepping start="0" end="1.0" dt="0.1"/>
 

@@ -109,8 +109,24 @@ public:
   //! \brief Parses a data section from an XML element.
   virtual bool parse(const TiXmlElement* elem)
   {
-    if (strcasecmp(elem->Value(),inputContext.c_str()) &&
-        strcasecmp(elem->Value(),"thermoelasticity"))
+    if (!strcasecmp(elem->Value(),"thermoelasticity")) {
+      typename Integrand::MaterialType* mat = nullptr;
+      const TiXmlElement* child = elem->FirstChildElement();
+      for (; child; child = child->NextSiblingElement())
+        if (!strcasecmp(child->Value(),"isotropic")) {
+          int code = this->parseMaterialSet(child,mVec.size());
+          IFEM::cout <<"\tMaterial code "<< code <<":";
+          mat = new typename Integrand::MaterialType();
+          mat->parse(child);
+          mVec.push_back(std::unique_ptr<typename Integrand::MaterialType>(mat));
+        }
+      if (mat) {
+        wdc.setMaterial(mat);
+        he.setMaterial(mat);
+      }
+      return true;
+    }
+    else if (strcasecmp(elem->Value(),inputContext.c_str()))
       return this->Dim::parse(elem);
 
     const TiXmlElement* child = elem->FirstChildElement();
@@ -128,13 +144,6 @@ public:
             this->setPropertyType(code,Property::NEUMANN);
             Dim::myVectors[code] = Dim::mySol->getScalarSecSol();
           }
-      }
-
-      else if (!strcasecmp(child->Value(),"isotropic")) {
-        int code = this->parseMaterialSet(child,mVec.size());
-        IFEM::cout <<"\tMaterial code "<< code <<":";
-        mVec.push_back(std::unique_ptr<typename Integrand::MaterialType>(new typename Integrand::MaterialType));
-        mVec.back()->parse(child);
       }
 
       else if (!strcasecmp(child->Value(),"heatflux") ||
@@ -167,11 +176,6 @@ public:
 
       else
         this->Dim::parse(child);
-
-    if (!mVec.empty()) {
-      wdc.setMaterial(mVec.front().get());
-      he.setMaterial(mVec.front().get());
-    }
 
     return true;
   }
@@ -247,14 +251,11 @@ public:
                  << std::endl;
     }
 
-    return this->postSolve(tp);
-  }
-
-  //! \brief Postprocesses the solution of current time step.
-  bool postSolve(const TimeStep& tp, bool = false)
-  {
     return true;
   }
+
+  //! \brief Dummy method.
+  bool postSolve(const TimeStep&, bool = false) { return true; }
 
   //! \brief Evaluates and prints out solution norms.
   void printFinalNorms(const TimeStep& tp)
@@ -503,4 +504,5 @@ struct SolverConfigurator< SIMHeatEquation<Dim,Integrand> > {
     return 0;
   }
 };
+
 #endif

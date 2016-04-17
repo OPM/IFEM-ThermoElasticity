@@ -36,6 +36,7 @@ public:
   //! \brief Default constructor.
   SIMThermoElasticity(bool checkRHS = false) : SIMElasticity<Dim>(checkRHS)
   {
+    SIMElasticity<Dim>::myContext = "thermoelasticity";
     Dim::myHeading = "Thermo-Elasticity solver";
     Dim::msgLevel = 1; // prints the solution summary only
     startT = 0.0;
@@ -137,8 +138,7 @@ protected:
   //! \param[in] elem The XML element to parse
   virtual bool parse(const TiXmlElement* elem)
   {
-    if (strcasecmp(elem->Value(),"elasticity") &&
-        strcasecmp(elem->Value(),"thermoelasticity"))
+    if (strcasecmp(elem->Value(),"thermoelasticity"))
       return this->Dim::parse(elem);
 
     const TiXmlElement* child = elem->FirstChildElement();
@@ -171,8 +171,6 @@ protected:
                                              Dim::dimension == 3, polar));
         }
       }
-      else
-        this->getIntegrand()->parse(child);
 
     return this->SIMElasticity<Dim>::parse(elem);
   }

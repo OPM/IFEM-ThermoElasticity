@@ -23,14 +23,13 @@ Parsing <geometry>
   Parsing <refine>
 	Refining P1 15 15
   Parsing <topologysets>
-Parsing <thermoelasticity>
-	Material code 0: 2e+11 0.3 7850 1.2e-05 500 50
 Parsing <heatequation>
   Parsing <dirichlet>
 	Dirichlet code 1: 373
   Parsing <dirichlet>
 	Dirichlet code 1000001: 293
-Parsing <elasticity>
+Parsing <thermoelasticity>
+	Material code 0: 2e+11 0.3 7850 1.2e-05 500 50
 Parsing <timestepping>
 Parsing input file succeeded.
 11. Heat equation solver
@@ -61,10 +60,9 @@ Parsing <geometry>
   Parsing <refine>
 	Refining P1 15 15
   Parsing <topologysets>
+Parsing <heatequation>
 Parsing <thermoelasticity>
 	Material code 0: 2e+11 0.3 7850 1.2e-05 500 50
-Parsing <heatequation>
-Parsing <elasticity>
 	Initial temperature: 273
 	Analytical solution: Pipe Ri=0.03 Ro=0.04 Ti=373 To=293
   Parsing <dirichlet>
@@ -92,7 +90,6 @@ Parsing input file Annulus.xinp
 Parsing <geometry>
 Parsing <thermoelasticity>
 Parsing <heatequation>
-Parsing <elasticity>
 Parsing <timestepping>
 Parsing input file succeeded.
   step = 1  time = 0.1
