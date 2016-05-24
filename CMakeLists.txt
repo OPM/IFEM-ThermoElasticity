@@ -16,7 +16,7 @@ if (NOT IFEM_CONFIGURED)
 endif(NOT IFEM_CONFIGURED)
 
 include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
-                    ../Elasticity)
+                    ../Elasticity ThermoElastic)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -31,18 +31,16 @@ if(NOT TARGET Elasticity)
   add_subdirectory(../Elasticity Elasticity)
 endif()
 
-set(ThermoEl_SRCS HeatEquation.C
-                  ThermoElasticity.C
-                  ../Elasticity/Linear/AnalyticSolutions.C)
-
-add_library(CommonThermo STATIC ${ThermoEl_SRCS})
+if(NOT TARGET ThermoElastic)
+  add_subdirectory(ThermoElastic)
+endif()
 
 add_executable(ThermoElasticity main_ThermoElasticity.C)
 add_executable(HeatEquation main_HeatEquation.C)
 
-target_link_libraries(ThermoElasticity CommonThermo Elasticity
+target_link_libraries(ThermoElasticity ThermoElastic Elasticity
                                        IFEMAppCommon ${IFEM_LIBRARIES})
-target_link_libraries(HeatEquation CommonThermo Elasticity
+target_link_libraries(HeatEquation ThermoElastic Elasticity
                                    IFEMAppCommon ${IFEM_LIBRARIES})
 
 # Installation
@@ -67,12 +65,6 @@ else(IFEM_USE_PARALLEL_PETSC)
   ifem_add_test(Square-heat.reg HeatEquation)
 endif(IFEM_USE_PARALLEL_PETSC)
 list(APPEND TEST_APPS HeatEquation ThermoElasticity)
-
-# Unit tests
-IFEM_add_test_app(${PROJECT_SOURCE_DIR}/Test/*.C
-                  ${PROJECT_SOURCE_DIR}/Test
-                  ThermoElasticity
-                  CommonThermo Elasticity IFEMAppCommon ${IFEM_LIBRARIES})
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
