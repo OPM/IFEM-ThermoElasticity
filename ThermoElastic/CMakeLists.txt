@@ -9,7 +9,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 # Common ThermoElastic sources
 add_library(ThermoElastic STATIC HeatEquation.C
                                  ThermoElasticity.C
-                                 ../../Elasticity/Linear/AnalyticSolutions.C)
+                                 ${ELASTICITY_DIR}/Linear/AnalyticSolutions.C)
 
 # Unit tests
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/../Test/*.C

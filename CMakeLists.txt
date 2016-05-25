@@ -15,8 +15,13 @@ if (NOT IFEM_CONFIGURED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${IFEM_CXX_FLAGS}")
 endif(NOT IFEM_CONFIGURED)
 
+set(ELASTICITY_DIR ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity)
+if(NOT EXISTS ${ELASTICITY_DIR})
+  set(ELASTICITY_DIR ${PROJECT_SOURCE_DIR}/../Elasticity)
+endif()
+
 include_directories(${IFEM_INCLUDES} ../Common ${PROJECT_SOURCE_DIR}
-                    ../Elasticity ThermoElastic)
+                    ${ELASTICITY_DIR} ThermoElastic)
 
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 
@@ -27,8 +32,12 @@ if(NOT WIN32)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall")
 endif(NOT WIN32)
 
+# Testing
+enable_testing()
+include(IFEMTesting)
+
 if(NOT TARGET Elasticity)
-  add_subdirectory(../Elasticity Elasticity)
+  add_subdirectory(${ELASTICITY_DIR} Elasticity)
 endif()
 
 if(NOT TARGET ThermoElastic)
@@ -45,10 +54,6 @@ target_link_libraries(HeatEquation ThermoElastic Elasticity
 
 # Installation
 install(TARGETS HeatEquation ThermoElasticity DESTINATION bin)
-
-# Testing
-enable_testing()
-include(IFEMTesting)
 
 # Generate regtest script with correct paths
 configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
