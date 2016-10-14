@@ -13,7 +13,6 @@
 
 #include "HeatEquation.h"
 #include "HeatQuantities.h"
-#include "WeakOperators.h"
 #include "FiniteElement.h"
 #include "TimeDomain.h"
 #include "ElmMats.h"
@@ -51,9 +50,9 @@ bool HeatEquation::evalInt (LocalIntegral& elmInt,
     theta -= bdf[t]/time.dt*val;
   }
 
-  WeakOperators::Laplacian(A,fe,kappa);
-  WeakOperators::Mass(A,fe,rhocp*bdf[0]/time.dt);
-  WeakOperators::Source(b,fe,rhocp*theta+this->getSource(X));
+  WeakOps::Laplacian(A,fe,kappa);
+  WeakOps::Mass(A,fe,rhocp*bdf[0]/time.dt);
+  WeakOps::Source(b,fe,rhocp*theta+this->getSource(X));
 
   return true;
 }
@@ -74,7 +73,7 @@ bool HeatEquation::evalBou (LocalIntegral& elmInt,
   double kappa = mat ? mat->getThermalConductivity(val) : 1.0;
 
   // Integrate the Neumann value
-  WeakOperators::Source(static_cast<ElmMats&>(elmInt).b.front(),fe,kappa*T);
+  WeakOps::Source(static_cast<ElmMats&>(elmInt).b.front(),fe,kappa*T);
 
   return true;
 }
@@ -132,8 +131,8 @@ bool HeatEquation::WeakDirichlet::evalBou (LocalIntegral& elmInt,
   double val = fe.N.dot(elmInt.vec.front());
   double kappa = mat ? mat->getThermalConductivity(val) : 1.0;
 
-  WeakOperators::Mass(A,fe,-envCond);
-  WeakOperators::Source(b,fe,q);
+  WeakOps::Mass(A,fe,-envCond);
+  WeakOps::Source(b,fe,q);
 
   for (size_t i = 1; i <= fe.N.size(); i++) {
     for (size_t j = 1; j <= fe.N.size(); j++) {
