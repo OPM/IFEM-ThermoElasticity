@@ -15,6 +15,7 @@
 #define _HEAT_EQUATION_H
 
 #include "IntegrandBase.h"
+#include "EqualOrderOperators.h"
 #include "LinIsotropic.h"
 #include "BDF.h"
 
@@ -28,6 +29,7 @@ class HeatEquation : public IntegrandBase
 {
 public:
   typedef LinIsotropic MaterialType; //!< Material used in this integrand
+  using WeakOps = EqualOrderOperators::Weak; //!< Convenience rename
 
   //! \brief Class representing the weak Dirichlet integrand.
   class WeakDirichlet : public IntegrandBase
