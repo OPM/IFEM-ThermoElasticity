@@ -19,7 +19,6 @@
 #include "DataExporter.h"
 #include "ForceIntegrator.h"
 #include "Functions.h"
-#include "InitialConditionHandler.h"
 #include "Profiler.h"
 #include "Property.h"
 #include "SIMoutput.h"
@@ -193,7 +192,7 @@ public:
       temperature[n].resize(this->getNoDOFs(),true);
       this->registerField(str,temperature[n]);
     }
-    SIM::setInitialConditions(*this);
+    this->setInitialConditions();
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
