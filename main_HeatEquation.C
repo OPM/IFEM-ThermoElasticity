@@ -114,7 +114,7 @@ int main (int argc, char** argv)
     else if (!strncmp(argv[i],"-2D",3))
       twoD = true;
     else if (!strncmp(argv[i],"-msg",4) && i < argc-1)
-      SIMinput::msgLevel = atoi(argv[++i]);
+      SIMadmin::msgLevel = atoi(argv[++i]);
     else if (!strcmp(argv[i],"-be"))
       tIt = TimeIntegration::BE;
     else if (!strcmp(argv[i],"-bdf2"))

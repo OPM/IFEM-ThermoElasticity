@@ -413,7 +413,7 @@ protected:
     PropertyVec::const_iterator p;
     for (p = Dim::myProps.begin(); p != Dim::myProps.end(); p++)
       if (std::find_if(fluxes.begin(),fluxes.end(), hasCode(p->pindx)) != fluxes.end())
-        this->generateThreadGroups(*p,SIMinput::msgLevel < 2);
+        this->generateThreadGroups(*p,SIMadmin::msgLevel < 2);
 
     return true;
   }
