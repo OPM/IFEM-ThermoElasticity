@@ -329,7 +329,7 @@ public:
     }
 
     if (bf.file.empty())
-      utl::printSyncronized(std::cout, str, Dim::myPid);
+      IFEM::cout << str.str();
     else if (Dim::myPid == 0)
     {
       *os << str.str();
