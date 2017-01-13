@@ -58,9 +58,9 @@ install(TARGETS HeatEquation ThermoElasticity DESTINATION bin)
 # Generate regtest script with correct paths
 configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
-if(IFEM_USE_PARALLEL_PETSC)
+if(MPI_FOUND)
   # Add parallel tests here
-else(IFEM_USE_PARALLEL_PETSC)
+else()
   ifem_add_test(Annulus.reg ThermoElasticity)
   ifem_add_test(Bar.reg ThermoElasticity)
   ifem_add_test(Square.reg ThermoElasticity)
@@ -68,7 +68,7 @@ else(IFEM_USE_PARALLEL_PETSC)
   ifem_add_test(Annulus-heat.reg HeatEquation)
   ifem_add_test(Annulus-heat-be.reg HeatEquation)
   ifem_add_test(Square-heat.reg HeatEquation)
-endif(IFEM_USE_PARALLEL_PETSC)
+endif()
 list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 
 if(IFEM_COMMON_APP_BUILD)
