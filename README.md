@@ -14,7 +14,7 @@ using the IFEM library.
 This is done by first navigating to the folder in which you want the application and typing
 
     git clone https://github.com/OPM/IFEM-Elasticity Elasticity
-    git clone https://github.com/SintefMath/IFEM-ThermoElasticity ThermoElasticity
+    git clone https://github.com/OPM/IFEM-ThermoElasticity ThermoElasticity
 
 ### Compiling the code
 
