@@ -1,0 +1,32 @@
+Square-heat.xinp -be -2D
+
+Input file: Square-heat.xinp
+Equation solver: 2
+Number of Gauss points: 4
+Number of elements    64
+Number of nodes       100
+Number of dofs        100
+Number of constraints 36
+Number of unknowns    64
+  step = 6  time = 0.6
+L2-norm            : 0.0433614
+Max temperature    : 0.188214
+  step = 7  time = 0.7
+L2-norm            : 0.0494721
+Max temperature    : 0.214739
+  step = 8  time = 0.8
+L2-norm            : 0.0550886
+Max temperature    : 0.239119
+  step = 9  time = 0.9
+L2-norm            : 0.0601546
+Max temperature    : 0.261109
+  step = 10  time = 1
+L2-norm            : 0.0646196
+Max temperature    : 0.28049
+L2 norm |t^h| = a(t^h,t^h)^0.5      : 0.0473892
+H1 norm |t^h| = a(t^h,t^h)^0.5      : 0.0328127
+L2 norm |t|   = (t,t)^0.5           : 0.0474115
+H1 norm |t|   = a(t,t)^0.5          : 0.147154
+L2 norm |e|   = (e,e)^0,5, e=t-t^h  : 3.89584e-05
+H1 norm |e|   = a(e,e)^0.5, e=t-t^h : 0.000349782
+Exact relative error (%)            : 0.237698

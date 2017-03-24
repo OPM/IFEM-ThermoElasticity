@@ -23,7 +23,6 @@
 #include "HeatEquation.h"
 #include "XMLWriter.h"
 #include "TimeIntUtils.h"
-#include "Utilities.h"
 #include "Profiler.h"
 #include <stdlib.h>
 #include <string.h>
@@ -32,10 +31,9 @@
 
 //! \brief Setup and launch the simulation.
 //! \param[in] infile The input file to process
-//! \param[in] restartfile File to restart from. nullptr for no restart
 //! \param[in] tit The time integration method to use. Either BE or BDF2
-  template<class Dim>
-int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
+template<class Dim>
+int runSimulator(char* infile, TimeIntegration::Method tIt)
 {
   typedef SIMHeatEquation<Dim,HeatEquation>               HeatSolver;
   typedef SIMThermoElasticity<Dim>                        ElasticitySolver;
@@ -56,19 +54,18 @@ int runSimulator(char* infile, char* restartfile, TimeIntegration::Method tIt)
 
   utl::profiler->stop("Model input");
 
-  if (restartfile)
-    SIM::handleRestart(model, solver, restartfile, tempModel.getDumpInterval(),
-                       TimeIntegration::Steps(tIt));
+  const SIMoptions& sopt = tempModel.opt;
 
   model.setupDependencies();
-  model.init(solver.getTimePrm());
+  if (sopt.restartFile.empty())
+    model.init(solver.getTimePrm());
+  else if (solver.restart(sopt.restartFile,sopt.restartStep) < 0)
+    return 2;
 
   DataExporter* exporter = nullptr;
   if (tempModel.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(model, solver, tempModel.opt.hdf5,
-                                     restartfile && tempModel.opt.hdf5 == restartfile,
-                                     tempModel.getDumpInterval(),
-                                     TimeIntegration::Steps(tIt));
+    exporter = SIM::handleDataOutput(model,solver,sopt.hdf5,false,
+                                     sopt.saveInc,sopt.restartInc);
 
   int res = solver.solveProblem(infile,exporter);
 
@@ -110,11 +107,10 @@ int main (int argc, char** argv)
 
   bool twoD = false;
   char* infile = nullptr;
-  char* restartfile = nullptr;
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
   Elasticity::wantPrincipalStress = true;
 
-  IFEM::Init(argc, argv);
+  IFEM::Init(argc,argv,"Thermo-Elasticity solver");
 
   for (int i = 1; i < argc; i++)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
@@ -129,8 +125,6 @@ int main (int argc, char** argv)
       tIt = TimeIntegration::BE;
     else if (!strcmp(argv[i],"-bdf2"))
       tIt = TimeIntegration::BDF2;
-    else if (!strcmp(argv[i],"-restart") && i < argc-1)
-      restartfile = strtok(argv[++i],".");
     else if (!infile)
       infile = argv[i];
     else
@@ -146,16 +140,12 @@ int main (int argc, char** argv)
     return 0;
   }
 
-  std::cout <<"\n >>> IFEM Thermo-Elasticity solver <<<"
-            <<"\n ====================================\n"
-            <<"\n Executing command:\n";
-  for (int i = 0; i < argc; i++) IFEM::cout <<" "<< argv[i];
-  IFEM::cout <<"\n\nInput file: "<< infile;
+  std::cout <<"\nInput file: "<< infile;
   IFEM::getOptions().print(IFEM::cout) << std::endl;
   utl::profiler->stop("Initialization");
 
   if (twoD)
-    return runSimulator<SIM2D>(infile, restartfile, tIt);
+    return runSimulator<SIM2D>(infile,tIt);
   else
-    return runSimulator<SIM3D>(infile, restartfile, tIt);
+    return runSimulator<SIM3D>(infile,tIt);
 }
