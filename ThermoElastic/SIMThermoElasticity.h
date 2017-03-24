@@ -22,6 +22,11 @@
 #include "ASMstruct.h"
 #include "DataExporter.h"
 #include "Profiler.h"
+#ifdef HAS_CEREAL
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#endif
 
 
 /*!
@@ -130,6 +135,37 @@ public:
   {
     ThermoElasticity* thelp = dynamic_cast<ThermoElasticity*>(Dim::myProblem);
     return thelp ? thelp->getInitialTemperature() : nullptr;
+  }
+
+  //! \brief Serialize internal state for restarting purposes.
+  //! \param data Container for serialized data
+  bool serialize(DataExporter::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    std::ostringstream str;
+    cereal::BinaryOutputArchive ar(str);
+    ar(sol);
+    data.insert(std::make_pair(this->getName(), str.str()));
+    return true;
+#endif
+    return false;
+  }
+
+  //! \brief Set internal state from a serialized state.
+  //! \param[in] data Container for serialized data
+  bool deSerialize(const DataExporter::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    std::stringstream str;
+    auto it = data.find(this->getName());
+    if (it != data.end()) {
+      str << it->second;
+      cereal::BinaryInputArchive ar(str);
+      ar(sol);
+    }
+    return true;
+#endif
+    return false;
   }
 
 protected:

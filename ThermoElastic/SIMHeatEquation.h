@@ -28,6 +28,11 @@
 #include "tinyxml.h"
 #include "LinIsotropic.h"
 #include "HeatQuantities.h"
+#ifdef HAS_CEREAL
+#include <cereal/cereal.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
+#endif
 #include <fstream>
 #include <memory>
 
@@ -192,7 +197,6 @@ public:
       temperature[n].resize(this->getNoDOFs(),true);
       this->registerField(str,temperature[n]);
     }
-    this->setInitialConditions();
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -377,8 +381,7 @@ public:
   void registerFields(DataExporter& exporter, const std::string& prefix="")
   {
     exporter.registerField("theta","temperature",DataExporter::SIM,
-                           DataExporter::PRIMARY|DataExporter::RESTART,
-                           prefix);
+                           DataExporter::PRIMARY,prefix);
     exporter.setFieldValue("theta", this, &temperature.front());
   }
 
@@ -403,7 +406,47 @@ public:
   //! \brief Returns the function of the initial temperature field.
   const RealFunc* getInitialTemperature() const { return he.getInitialTemperature(); }
 
+  //! \brief Serialize internal state for restarting purposes.
+  //! \param data Container for serialized data
+  bool serialize(DataExporter::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    std::ostringstream str;
+    cereal::BinaryOutputArchive ar(str);
+    doSerializeOps(ar);
+    data.insert(std::make_pair(this->getName(), str.str()));
+    return true;
+#endif
+    return false;
+  }
+
+  //! \brief Set internal state from a serialized state.
+  //! \param[in] data Container for serialized data
+  bool deSerialize(const DataExporter::SerializeData& data)
+  {
+#ifdef HAS_CEREAL
+    std::stringstream str;
+    auto it = data.find(this->getName());
+    if (it != data.end()) {
+      str << it->second;
+      cereal::BinaryInputArchive ar(str);
+      doSerializeOps(ar);
+      he.advanceStep();
+    }
+    return true;
+#endif
+    return false;
+  }
+
 protected:
+  //! \brief Serialize to/from state.
+  //! \param ar An input or ouput archive
+  template <class T> void doSerializeOps(T& ar)
+  {
+    for (size_t i = 0; i < temperature.size(); ++i)
+      ar(temperature[i]);
+  }
+
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to ensure that threading groups are
   //! established for the patch faces subjected to boundary flux integration.
