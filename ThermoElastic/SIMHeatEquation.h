@@ -307,7 +307,6 @@ public:
       return false;
 
     std::ostream* os = &std::cout;
-    std::stringstream str;
 
     if (Dim::myPid == 0) {
       if (bf.file.empty())
@@ -323,25 +322,15 @@ public:
         sprintf(line,"#%9s %11s\n", "time", flux ? "Flux" : "Energy");
         *os << line;
       }
+      sprintf(line,"%10.6f %11.6g\n", tp.time.t, integral[0]);
+      *os << line;
 
-      sprintf(line,"%10.6f", tp.time.t);
-      str << line;
-      sprintf(line," %11.6g", integral[0]);
-      str << line;
-      str << '\n';
-    }
-
-    if (bf.file.empty())
-      IFEM::cout << str.str();
-    else if (Dim::myPid == 0)
-    {
-      *os << str.str();
-      delete os;
+      if (!bf.file.empty())
+        delete os;
     }
 
     return true;
   }
-
 
   //! \brief Saves the converged results to VTF file of a given time step.
   //! \param[in] tp Time step identifier
@@ -375,17 +364,18 @@ public:
     return this->writeGlvStep(iDump,tp.time.t);
   }
 
+  //! \brief Returns a reference to the current solution.
   Vector& getSolution(int n=0) { return temperature[n]; }
+  //! \brief Returns a const reference to the current solution.
   const Vector& getSolution(int n=0) const { return temperature[n]; }
 
+  //! \brief Registers fields for data output.
   void registerFields(DataExporter& exporter, const std::string& prefix="")
   {
     exporter.registerField("theta","temperature",DataExporter::SIM,
                            DataExporter::PRIMARY,prefix);
     exporter.setFieldValue("theta", this, &temperature.front());
   }
-
-  double externalEnergy(const Vectors&) const { return 0.0; }
 
   //! \brief Set context to read from input file
   void setContext(int ctx)
@@ -394,12 +384,6 @@ public:
     str << "heatequation-" << ctx;
     inputContext = str.str();
   }
-
-#ifdef HAS_PETSC
-  //! \brief Set MPI communicator for the linear equation solvers
-  //! \param comm The communicator to use
-  void setCommunicator(const MPI_Comm* comm) { Dim::adm.setCommunicator(comm); }
-#endif
 
   //! \brief Sets the function of the initial temperature field.
   void setInitialTemperature(const RealFunc* f) { he.setInitialTemperature(f); }
@@ -537,7 +521,7 @@ struct SolverConfigurator< SIMHeatEquation<Dim,Integrand> > {
       return 3;
 
     // Initialize the linear equation system solver
-    ad.initSystem(ad.opt.solver,1,1,false);
+    ad.initSystem(ad.opt.solver);
     ad.initSol();
 
     if (props.shareGrid)
