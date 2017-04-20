@@ -12,14 +12,11 @@
 //==============================================================================
 
 #include "IFEM.h"
-#include "AppCommon.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMSolver.h"
 #include "SIMHeatEquation.h"
-#include "HDF5Writer.h"
 #include "HeatEquation.h"
-#include "XMLWriter.h"
 #include "TimeIntUtils.h"
 #include "Profiler.h"
 #include <stdlib.h>
@@ -55,15 +52,13 @@ int runSimulator(char* infile, TimeIntegration::Method tIt)
     return 2;
 
   // HDF5 output
-  DataExporter* exporter = nullptr;
   if (model.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(model,solver,model.opt.hdf5,false,
-                                     model.opt.saveInc,model.opt.restartInc);
+    solver.handleDataOutput(model.opt.hdf5,model.opt.saveInc,
+                            model.opt.restartInc);
 
-  int res = solver.solveProblem(infile,exporter);
+  int res = solver.solveProblem(infile,"Solving the heat conduction problem");
   if (!res) model.printFinalNorms(solver.getTimePrm());
 
-  delete exporter;
   return res;
 }
 
@@ -102,7 +97,7 @@ int main (int argc, char** argv)
   char* infile = nullptr;
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
 
-  IFEM::Init(argc,argv,"Heat equation solver");
+  IFEM::Init(argc,argv,"Heat conduction solver");
 
   for (int i = 1; i < argc; i++)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))

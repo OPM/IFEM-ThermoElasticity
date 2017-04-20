@@ -12,16 +12,13 @@
 //==============================================================================
 
 #include "IFEM.h"
-#include "AppCommon.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMSolver.h"
 #include "SIMHeatEquation.h"
 #include "SIMThermalCoupling.h"
 #include "SIMThermoElasticity.h"
-#include "HDF5Writer.h"
 #include "HeatEquation.h"
-#include "XMLWriter.h"
 #include "TimeIntUtils.h"
 #include "Profiler.h"
 #include <stdlib.h>
@@ -62,15 +59,10 @@ int runSimulator(char* infile, TimeIntegration::Method tIt)
   else if (solver.restart(sopt.restartFile,sopt.restartStep) < 0)
     return 2;
 
-  DataExporter* exporter = nullptr;
   if (tempModel.opt.dumpHDF5(infile))
-    exporter = SIM::handleDataOutput(model,solver,sopt.hdf5,false,
-                                     sopt.saveInc,sopt.restartInc);
+    solver.handleDataOutput(sopt.hdf5,sopt.saveInc,sopt.restartInc);
 
-  int res = solver.solveProblem(infile,exporter);
-
-  delete exporter;
-  return res;
+  return solver.solveProblem(infile,"Solving the Thermo-Elasticity problem");
 }
 
 
