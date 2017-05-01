@@ -1,7 +1,7 @@
 // $Id$
 //==============================================================================
 //!
-//! \file SIMThermoElasticity .h
+//! \file SIMThermoElasticity.h
 //!
 //! \date Aug 05 2014
 //!
@@ -16,7 +16,7 @@
 #define _SIM_THERMO_ELASTICITY_H_
 
 #include "SIMElasticity.h"
-#include "SIMSolver.h"
+#include "SIMconfigure.h"
 #include "ThermoElasticity.h"
 #include "Linear/AnalyticSolutions.h"
 #include "ASMstruct.h"
@@ -108,7 +108,7 @@ public:
   }
 
   //! \brief Postprocesses the solution of current time step.
-  bool postSolve(const TimeStep& tp, bool = false)
+  bool postSolve(const TimeStep& tp)
   {
     Vectors gNorm;
     this->setMode(SIM::RECOVERY);

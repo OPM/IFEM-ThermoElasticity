@@ -22,9 +22,10 @@
 #include "Profiler.h"
 #include "Property.h"
 #include "SIMoutput.h"
-#include "SIMSolver.h"
+#include "SIMconfigure.h"
 #include "TimeStep.h"
 #include "Utilities.h"
+#include "IFEM.h"
 #include "tinyxml.h"
 #include "LinIsotropic.h"
 #include "HeatQuantities.h"
@@ -203,7 +204,7 @@ public:
   //! \param[in] fileName File name used to construct the VTF-file name from
   //! \param[out] geoBlk Running geometry block counter
   //! \param[out] nBlock Running result block counter
-  virtual bool saveModel(char* fileName, int& geoBlk, int& nBlock)
+  bool saveModel(char* fileName, int& geoBlk, int& nBlock)
   {
     if (Dim::opt.format < 0) return true;
 
@@ -215,7 +216,7 @@ public:
   bool init(const TimeStep&) { return true; }
 
   //! \brief Advances the time step one step forward.
-  virtual bool advanceStep(TimeStep& tp)
+  bool advanceStep(TimeStep&)
   {
     // Update temperature vectors between time steps
     for (int n = temperature.size()-1; n > 0; n--)
@@ -226,7 +227,7 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep& tp)
+  bool solveStep(TimeStep& tp)
   {
     PROFILE1("SIMHeatEquation::solveStep");
 
@@ -258,7 +259,7 @@ public:
   }
 
   //! \brief Dummy method.
-  bool postSolve(const TimeStep&, bool = false) { return true; }
+  bool postSolve(const TimeStep&) { return true; }
 
   //! \brief Evaluates and prints out solution norms.
   void printFinalNorms(const TimeStep& tp)
@@ -340,11 +341,10 @@ public:
     PROFILE1("SIMHeatEquation::saveStep");
 
     bool ok = true;
-    for (size_t i = 0; i < fluxes.size(); ++i)
-      ok &= this->saveIntegral(fluxes[i],tp,true);
-
-    for (size_t i = 0; i < senergy.size(); ++i)
-      ok &= this->saveIntegral(senergy[i],tp,false);
+    for (const BoundaryFlux& f : fluxes)
+      ok &= this->saveIntegral(f,tp,true);
+    for (const BoundaryFlux& f : senergy)
+      ok &= this->saveIntegral(f,tp,false);
 
     double old = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
@@ -428,8 +428,7 @@ protected:
   //! \param ar An input or ouput archive
   template <class T> void doSerializeOps(T& ar)
   {
-    for (size_t i = 0; i < temperature.size(); ++i)
-      ar(temperature[i]);
+    for (Vector& t : temperature) ar(t);
   }
 
   //! \brief Performs some pre-processing tasks on the FE model.
@@ -437,10 +436,9 @@ protected:
   //! established for the patch faces subjected to boundary flux integration.
   virtual bool preprocessB()
   {
-    PropertyVec::const_iterator p;
-    for (p = Dim::myProps.begin(); p != Dim::myProps.end(); p++)
-      if (std::find_if(fluxes.begin(),fluxes.end(), hasCode(p->pindx)) != fluxes.end())
-        this->generateThreadGroups(*p,SIMadmin::msgLevel < 2);
+    for (const Property& p : Dim::myProps)
+      if (std::find_if(fluxes.begin(),fluxes.end(),hasCode(p.pindx)) != fluxes.end())
+        this->generateThreadGroups(p,SIMadmin::msgLevel < 2);
 
     return true;
   }
@@ -478,11 +476,10 @@ protected:
     Dim::myInts.insert(std::make_pair(0,Dim::myProblem));
 
     // Couple the weak Dirichlet integrand to the generic Neumann property codes
-    PropertyVec::iterator p;
-    for (p = Dim::myProps.begin(); p != Dim::myProps.end(); p++)
-      if (p->pcode == Property::NEUMANN_GENERIC || p->pcode == Property::ROBIN)
-        if (Dim::myInts.find(p->pindx) == Dim::myInts.end())
-          Dim::myInts.insert(std::make_pair(p->pindx,&wdc));
+    for (const Property& p : Dim::myProps)
+      if (p.pcode == Property::NEUMANN_GENERIC || p.pcode == Property::ROBIN)
+        if (Dim::myInts.find(p.pindx) == Dim::myInts.end())
+          Dim::myInts.insert(std::make_pair(p.pindx,&wdc));
   }
 
 private:
