@@ -400,8 +400,9 @@ public:
     doSerializeOps(ar);
     data.insert(std::make_pair(this->getName(), str.str()));
     return true;
-#endif
+#else
     return false;
+#endif
   }
 
   //! \brief Set internal state from a serialized state.
@@ -416,8 +417,8 @@ public:
       cereal::BinaryInputArchive ar(str);
       doSerializeOps(ar);
       he.advanceStep();
+      return true;
     }
-    return true;
 #endif
     return false;
   }
