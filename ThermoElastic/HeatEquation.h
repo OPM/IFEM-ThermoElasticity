@@ -45,9 +45,13 @@ public:
 
     //! \brief Returns that this integrand has no interior contributions.
     virtual bool hasInteriorTerms() const { return false; }
+
+    using IntegrandBase::getLocalIntegral;
     //! \brief Returns a local integral contribution object for given element.
     //! \param[in] nen Number of nodes on element
     virtual LocalIntegral* getLocalIntegral(size_t nen, size_t, bool) const;
+
+    using IntegrandBase::evalBou;
     //! \brief Evaluates the integrand at a boundary point.
     //! \param elmInt The local integral object to receive the contributions
     //! \param[in] fe Finite element data of current integration point
@@ -80,6 +84,7 @@ public:
   //! \brief Empty destructor.
   virtual ~HeatEquation() {}
 
+  using IntegrandBase::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
@@ -87,6 +92,7 @@ public:
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
 		       const TimeDomain& time, const Vec3& X) const;
 
+  using IntegrandBase::evalBou;
   //! \brief Evaluates the integrand at a boundary point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
@@ -127,6 +133,7 @@ public:
   //! \brief Returns the function of the initial temperature field.
   const RealFunc* getInitialTemperature() const { return init; }
 
+  using IntegrandBase::getForceIntegrand;
   //! \brief Returns a pointer to an Integrand for boundary force evaluation.
   //! \note The Integrand is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer returned.
@@ -166,6 +173,7 @@ public:
   //! \brief Empty destructor.
   virtual ~HeatEquationNorm() {}
 
+  using NormBase::evalInt;
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point

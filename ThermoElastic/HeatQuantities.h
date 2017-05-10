@@ -34,6 +34,7 @@ public:
   //! \brief Empty destructor.
   virtual ~HeatEquationFlux() {}
 
+  using ForceBase::evalBou;
   //! \brief Evaluates the integrand at a boundary point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
@@ -82,6 +83,7 @@ public:
   //! \brief Empty destructor.
   virtual ~HeatEquationStoredEnergy() {}
 
+  using ForceBase::evalInt;
   //! \brief Evaluates the integrand at a boundary point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
@@ -125,6 +127,7 @@ public:
     return this->getLocalIntegral(nen1,iEl,neumann);
   }
 
+  using ForceBase::initElement;
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param[in] fe Nodal and integration point data for current element
