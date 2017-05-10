@@ -34,6 +34,7 @@ public:
   //! \brief Empty destructor.
   virtual ~ThermoElasticity() {}
 
+  using LinearElasticity::initElement;
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param elmInt Local integral for element
