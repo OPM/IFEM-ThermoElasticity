@@ -39,6 +39,7 @@ endif()
 
 add_executable(ThermoElasticity main_ThermoElasticity.C)
 add_executable(HeatEquation main_HeatEquation.C)
+list(APPEND CHECK_SOURCES main_HeatEquation.C main_ThermoElasticity.C)
 
 target_link_libraries(ThermoElasticity ThermoElastic Elasticity
                                        IFEMAppCommon ${IFEM_LIBRARIES})
@@ -54,9 +55,6 @@ set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} \\
                       ${PROJECT_SOURCE_DIR}/ThermoElastic \\
                       ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity")
 add_doc_target(ThermoElasticity ThermoElasticity)
-
-# Generate regtest script with correct paths
-configure_file(${IFEM_REGTEST_SCRIPT} regtest.sh)
 
 if(MPI_FOUND)
   # Add parallel tests here
