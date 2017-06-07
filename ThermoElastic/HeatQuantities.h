@@ -23,13 +23,13 @@
 /*!
   \brief Class representing the integrand for computing boundary heat fluxes.
 */
+
 template<class HE> class HeatEquationFlux : public ForceBase
 {
 public:
   //! \brief Constructor for global force resultant integration.
   //! \param[in] p The heat equation problem to evaluate fluxes for
-  HeatEquationFlux(HE& p)
-    : ForceBase(p) {}
+  explicit HeatEquationFlux(HE& p) : ForceBase(p) {}
 
   //! \brief Empty destructor.
   virtual ~HeatEquationFlux() {}
@@ -72,13 +72,13 @@ public:
 /*!
   \brief Class representing the integrand for computing stored energy in a topology set.
 */
+
 template<class HE> class HeatEquationStoredEnergy : public ForceBase
 {
 public:
   //! \brief Constructor for global force resultant integration.
   //! \param[in] p The heat equation problem to evaluate fluxes for
-  HeatEquationStoredEnergy(HE& p)
-    : ForceBase(p) {}
+  explicit HeatEquationStoredEnergy(HE& p) : ForceBase(p) {}
 
   //! \brief Empty destructor.
   virtual ~HeatEquationStoredEnergy() {}
@@ -144,9 +144,11 @@ public:
 			   const FiniteElement& fe,
 			   const Vec3& X0, size_t nPt,
 			   LocalIntegral& elmInt)
-  { return myProblem.initElement(MNPC, elmInt); }
+  {
+    return myProblem.initElement(MNPC,elmInt);
+   }
 
-  //! \brief This is a volume integrand
+  //! \brief This is a volume integrand.
   virtual bool hasInteriorTerms() const { return true; }
 };
 
