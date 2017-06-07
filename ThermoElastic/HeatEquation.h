@@ -37,7 +37,7 @@ public:
   public:
     //! \brief Default constructor.
     //! \param[in] n Number of spatial dimensions
-    WeakDirichlet(unsigned short int n) :
+    explicit WeakDirichlet(unsigned short int n) :
       flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) { nsd=n; }
 
     //! \brief Empty destructor.
