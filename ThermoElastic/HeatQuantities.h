@@ -28,7 +28,7 @@ template<class HE> class HeatEquationFlux : public ForceBase
 public:
   //! \brief Constructor for global force resultant integration.
   //! \param[in] p The heat equation problem to evaluate fluxes for
-  HeatEquationFlux(HE& p)
+  explicit HeatEquationFlux(HE& p)
     : ForceBase(p) {}
 
   //! \brief Empty destructor.
@@ -77,7 +77,7 @@ template<class HE> class HeatEquationStoredEnergy : public ForceBase
 public:
   //! \brief Constructor for global force resultant integration.
   //! \param[in] p The heat equation problem to evaluate fluxes for
-  HeatEquationStoredEnergy(HE& p)
+  explicit HeatEquationStoredEnergy(HE& p)
     : ForceBase(p) {}
 
   //! \brief Empty destructor.
