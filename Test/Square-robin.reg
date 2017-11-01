@@ -1,75 +1,165 @@
 Square-robin.xinp -2D
 
-	Material code 1000000: 100000 0 1 1.2e-07 1 0.1
+Input file: Square-robin.xinp
+Equation solver: 2
+Number of Gauss points: 4
+0. Parsing input file(s).
+1. Heat equation solver
+Parsing input file Square-robin.xinp
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+  Parsing <raiseorder>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Bottom (1,3,1D)
+	               Left (1,1,1D)
+	               Right (1,2,1D)
+	               Top (1,4,1D)
+	               Whole (1,0,2D)
+  Parsing <raiseorder>
+	Raising order of P1 1 1
+  Parsing <refine>
+	Refining P1 15 15
+  Parsing <topologysets>
+Parsing <heatequation>
+  Parsing <neumann>
 	Neumann code 1000000 (generic): 0.0
+Parsing <thermoelasticity>
+	Material code 0: 100000 0 1 1.2e-07 1 0.1
+Parsing <timestepping>
+Parsing input file succeeded.
+11. Heat equation solver
+Resolving Dirichlet boundary conditions
+ >>> SAM model summary <<<
 Number of elements    256
 Number of nodes       324
 Number of dofs        324
 Number of unknowns    324
+2. Thermo-Elasticity solver
+Parsing input file Square-robin.xinp
+Parsing <geometry>
+  Generating linear geometry on unit parameter domain \[0,1]^2
+  Parsing <raiseorder>
+  Parsing <refine>
+  Parsing <topologysets>
+	Topology sets: Bottom (1,3,1D)
+	               Left (1,1,1D)
+	               Right (1,2,1D)
+	               Top (1,4,1D)
+	               Whole (1,0,2D)
+  Parsing <raiseorder>
+	Raising order of P1 1 1
+  Parsing <refine>
+	Refining P1 15 15
+  Parsing <topologysets>
+Parsing <heatequation>
+Parsing <thermoelasticity>
+  Parsing <isotropic>
+	Material code 0: 100000 0 1 1.2e-07 1 0.1
+  Parsing <dirichlet>
+	Dirichlet code 1: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1000001: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 2: (fixed)
+  Parsing <dirichlet>
+	Dirichlet code 1000002: (fixed)
 	Initial temperature: 150
+Parsing <timestepping>
+Parsing input file succeeded.
+Equation solver: 2
+Number of Gauss points: 4
+12. Thermo-Elasticity solver
+Problem definition:
+Elasticity: 2D, gravity = 0 0
+LinIsotropic: plane stress, E = 100000, nu = 0, rho = 1, alpha = 1.2e-07
+Resolving Dirichlet boundary conditions
+	Constraining P1 E1 in direction(s) 1
+	Constraining P1 E2 in direction(s) 1
+	Constraining P1 E4 in direction(s) 2
+	Constraining P1 E3 in direction(s) 2
+ >>> SAM model summary <<<
 Number of elements    256
 Number of nodes       324
 Number of dofs        648
 Number of unknowns    576
+3. Time integration driver
+Parsing input file Square-robin.xinp
+Parsing <geometry>
+Parsing <heatequation>
+Parsing <thermoelasticity>
+Parsing <timestepping>
+Parsing input file succeeded.
+Solving the Thermo-Elasticity problem
+  step = 1  time = 0.1
   Temperature summary: L2-norm         : 133.627
                        Max temperature : 149.98
-L2-norm            : 0
 Max X-displacement : 1.75674e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00201827
 # Stored energy in volume with code 1000
 #     time      Energy
   0.100000    -0.49273
+  step = 2  time = 0.2
   Temperature summary: L2-norm         : 127.04
                        Max temperature : 149.928
 L2-norm            : 0
 Max X-displacement : 2.17587e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00239251
   0.200000   -0.764245
+  step = 3  time = 0.3
   Temperature summary: L2-norm         : 122.657
                        Max temperature : 149.789
 L2-norm            : 1.08064e-06
 Max X-displacement : 2.35165e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.0026427
   0.300000    -0.93862
+  step = 4  time = 0.4
   Temperature summary: L2-norm         : 118.956
                        Max temperature : 149.481
 L2-norm            : 1.13333e-06
 Max X-displacement : 2.4529e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00284112
   0.400000    -1.08037
+  step = 5  time = 0.5
   Temperature summary: L2-norm         : 115.617
                        Max temperature : 148.91
 L2-norm            : 1.16164e-06
 Max X-displacement : 2.48544e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00301007
   0.500000    -1.20382
+  step = 6  time = 0.6
   Temperature summary: L2-norm         : 112.507
                        Max temperature : 147.991
 L2-norm            : 1.17456e-06
 Max X-displacement : 2.49571e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00316054
   0.600000    -1.31504
+  step = 7  time = 0.7
   Temperature summary: L2-norm         : 109.552
                        Max temperature : 146.676
 L2-norm            : 1.17694e-06
 Max X-displacement : 2.49347e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00329802
   0.700000    -1.41739
+  step = 8  time = 0.8
   Temperature summary: L2-norm         : 106.707
                        Max temperature : 144.963
 L2-norm            : 1.17175e-06
 Max X-displacement : 2.47476e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00342564
   0.800000    -1.51289
+  step = 9  time = 0.9
   Temperature summary: L2-norm         : 103.947
                        Max temperature : 142.887
 L2-norm            : 1.16098e-06
 Max X-displacement : 2.4452e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00354549
   0.900000    -1.60288
+  step = 10  time = 1
   Temperature summary: L2-norm         : 101.258
                        Max temperature : 140.507
 L2-norm            : 1.14608e-06
 Max X-displacement : 2.40817e-06
 Energy norm |u^h| = a(u^h,u^h)^0.5   : 0.00365908
   1.000000    -1.68825
+  Time integration completed.
