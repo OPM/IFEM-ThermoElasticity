@@ -14,26 +14,22 @@
 #ifndef _SIM_HEAT_EQUATION_H_
 #define _SIM_HEAT_EQUATION_H_
 
-#include "AnaSol.h"
-#include "ASMstruct.h"
-#include "DataExporter.h"
-#include "ForceIntegrator.h"
-#include "Functions.h"
-#include "Profiler.h"
-#include "Property.h"
+#include "SIMsolution.h"
 #include "SIMoutput.h"
 #include "SIMconfigure.h"
+#include "LinIsotropic.h"
+#include "HeatQuantities.h"
+#include "ForceIntegrator.h"
+#include "Property.h"
+#include "ASMstruct.h"
+#include "AnaSol.h"
+#include "DataExporter.h"
+#include "Functions.h"
+#include "Profiler.h"
 #include "TimeStep.h"
 #include "Utilities.h"
 #include "IFEM.h"
 #include "tinyxml.h"
-#include "LinIsotropic.h"
-#include "HeatQuantities.h"
-#ifdef HAS_CEREAL
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-#endif
 #include <fstream>
 #include <memory>
 
@@ -44,7 +40,8 @@
   heat equation problem using NURBS-based finite elements.
 */
 
-template<class Dim, class Integrand> class SIMHeatEquation : public Dim
+template<class Dim, class Integrand>
+class SIMHeatEquation : public Dim, public SIMsolution
 {
   //! \brief Struct containing parameters for boundary heat flux calculation.
   struct BoundaryFlux
@@ -190,13 +187,11 @@ public:
   //! \brief Initializes the temperature solution vectors.
   void initSol()
   {
-    size_t nSols = this->getNoSolutions();
-    temperature.resize(nSols);
+    size_t n, nSols = this->getNoSolutions();
     std::string str = "temperature1";
-    for (size_t n = 0; n < nSols; n++, str[11]++) {
-      temperature[n].resize(this->getNoDOFs(),true);
-      this->registerField(str,temperature[n]);
-    }
+    this->initSolution(this->getNoDOFs(),nSols);
+    for (n = 0; n < nSols; n++, str[11]++)
+      this->registerField(str,solution[n]);
   }
 
   //! \brief Opens a new VTF-file and writes the model geometry to it.
@@ -217,10 +212,7 @@ public:
   //! \brief Advances the time step one step forward.
   bool advanceStep(TimeStep&)
   {
-    // Update temperature vectors between time steps
-    for (int n = temperature.size()-1; n > 0; n--)
-      temperature[n] = temperature[n-1];
-
+    this->pushSolution(); // Update solution vectors between time steps
     he.advanceStep();
     return true;
   }
@@ -231,24 +223,25 @@ public:
     PROFILE1("SIMHeatEquation::solveStep");
 
     if (Dim::msgLevel >= 0)
-      IFEM::cout <<"\n  step = "<< tp.step <<"  time = "<< tp.time.t << std::endl;
+      IFEM::cout <<"\n  step = "<< tp.step
+                 <<"  time = "<< tp.time.t << std::endl;
 
     Vector dummy;
-    this->updateDirichlet(tp.time.t, &dummy);
+    this->updateDirichlet(tp.time.t,&dummy);
 
     this->setMode(SIM::DYNAMIC);
     this->setQuadratureRule(Dim::opt.nGauss[0]);
-    if (!this->assembleSystem(tp.time,temperature))
+    if (!this->assembleSystem(tp.time,solution))
       return false;
 
-    if (!this->solveSystem(temperature.front(),Dim::msgLevel-1,"temperature "))
+    if (!this->solveSystem(solution.front(),Dim::msgLevel-1,"temperature "))
       return false;
 
     if (Dim::msgLevel == 1)
     {
       size_t iMax[1];
       double dMax[1];
-      double normL2 = this->solutionNorms(temperature.front(),dMax,iMax,1);
+      double normL2 = this->solutionNorms(solution.front(),dMax,iMax,1);
       IFEM::cout <<"  Temperature summary: L2-norm         : "<< normL2
                  <<"\n                       Max temperature : "<< dMax[0]
                  << std::endl;
@@ -266,7 +259,7 @@ public:
     Vectors gNorm;
     this->setMode(SIM::RECOVERY);
     this->setQuadratureRule(Dim::opt.nGauss[1]);
-    if (!this->solutionNorms(tp.time,temperature,gNorm))
+    if (!this->solutionNorms(tp.time,solution,gNorm))
       return;
     else if (gNorm.empty())
       return;
@@ -295,11 +288,11 @@ public:
     Vector integral;
 
     if (flux)
-      integral = SIM::getBoundaryForce(temperature,this,bf.code,tp.time);
+      integral = SIM::getBoundaryForce(solution,this,bf.code,tp.time);
     else {
       HeatEquationStoredEnergy<Integrand> energy(he);
       energy.initBuffer(this->getNoElms());
-      SIM::integrate(temperature,this,bf.code,tp.time,&energy);
+      SIM::integrate(solution,this,bf.code,tp.time,&energy);
       energy.assemble(integral);
     }
 
@@ -347,7 +340,7 @@ public:
 
     double old = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
-    ok &= this->savePoints(temperature.front(),tp.time.t,tp.step);
+    ok &= this->savePoints(solution.front(),tp.time.t,tp.step);
     utl::zero_print_tol = old;
 
     if (tp.step%Dim::opt.saveInc > 0 || Dim::opt.format < 0 || !ok)
@@ -356,24 +349,23 @@ public:
     int iDump = 1 + tp.step/Dim::opt.saveInc;
 
     // Write solution fields
-    if (this->writeGlvS1(temperature.front(),iDump,nBlock,
+    if (this->writeGlvS1(solution.front(),iDump,nBlock,
                          tp.time.t,"temperature",89) < 0)
       return false;
 
     return this->writeGlvStep(iDump,tp.time.t);
   }
 
-  //! \brief Returns a reference to the current solution.
-  Vector& getSolution(int n=0) { return temperature[n]; }
-  //! \brief Returns a const reference to the current solution.
-  const Vector& getSolution(int n=0) const { return temperature[n]; }
+  using SIMsolution::getSolution;
+  //! \brief Returns a reference to current solution vector.
+  Vector& getSolution() { return solution.front(); }
 
   //! \brief Registers fields for data output.
   void registerFields(DataExporter& exporter, const std::string& prefix="")
   {
     exporter.registerField("theta","temperature",DataExporter::SIM,
-                           DataExporter::PRIMARY,prefix);
-    exporter.setFieldValue("theta", this, &temperature.front());
+                           DataExporter::PRIMARY, prefix);
+    exporter.setFieldValue("theta", this, &this->getSolution(0));
   }
 
   //! \brief Set context to read from input file
@@ -391,45 +383,23 @@ public:
 
   //! \brief Serialize internal state for restarting purposes.
   //! \param data Container for serialized data
-  bool serialize(DataExporter::SerializeData& data)
+  bool serialize(SerializeMap& data)
   {
-#ifdef HAS_CEREAL
-    std::ostringstream str;
-    cereal::BinaryOutputArchive ar(str);
-    doSerializeOps(ar);
-    data.insert(std::make_pair(this->getName(), str.str()));
-    return true;
-#else
-    return false;
-#endif
+    return this->saveSolution(data,this->getName());
   }
 
   //! \brief Set internal state from a serialized state.
   //! \param[in] data Container for serialized data
-  bool deSerialize(const DataExporter::SerializeData& data)
+  bool deSerialize(const SerializeMap& data)
   {
-#ifdef HAS_CEREAL
-    std::stringstream str;
-    auto it = data.find(this->getName());
-    if (it != data.end()) {
-      str << it->second;
-      cereal::BinaryInputArchive ar(str);
-      doSerializeOps(ar);
-      he.advanceStep();
-      return true;
-    }
-#endif
-    return false;
+    if (!this->restoreSolution(data,this->getName()))
+      return false;
+
+    he.advanceStep();
+    return true;
   }
 
 protected:
-  //! \brief Serialize to/from state.
-  //! \param ar An input or ouput archive
-  template <class T> void doSerializeOps(T& ar)
-  {
-    for (Vector& t : temperature) ar(t);
-  }
-
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to ensure that threading groups are
   //! established for the patch faces subjected to boundary flux integration.
@@ -486,7 +456,6 @@ private:
   typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
   std::vector<std::unique_ptr<typename Integrand::MaterialType>> mVec;  //!< Material data
 
-  Vectors temperature;      //!< Temperature solution vectors
   std::string inputContext; //!< Input context
 
   std::vector<BoundaryFlux> fluxes;  //!< Heat fluxes to calculate

@@ -7,62 +7,40 @@
 //!
 //! \author Arne Morten Kvarving / SINTEF
 //!
-//! \brief Wrapper equipping the linear elasticity solver with
-//! dummy time-stepping support and temperature coupling.
+//! \brief Wrapper equipping the elasticity solver with temperature coupling.
 //!
 //==============================================================================
 
 #ifndef _SIM_THERMO_ELASTICITY_H_
 #define _SIM_THERMO_ELASTICITY_H_
 
-#include "SIMElasticity.h"
+#include "SIMElasticityWrap.h"
 #include "SIMconfigure.h"
 #include "ThermoElasticity.h"
 #include "Linear/AnalyticSolutions.h"
 #include "ASMstruct.h"
-#include "DataExporter.h"
 #include "Profiler.h"
-#ifdef HAS_CEREAL
-#include <cereal/cereal.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/vector.hpp>
-#endif
 
 
 /*!
-  \brief Driver wrapping the linear elasticity solver with an ISolver interface.
+  \brief Driver wrapping the elasticity solver with temperature coupling.
 */
 
-template<class Dim> class SIMThermoElasticity : public SIMElasticity<Dim>
+template<class Dim> class SIMThermoElasticity : public SIMElasticityWrap<Dim>
 {
 public:
   typedef bool SetupProps; //!< Dummy declaration (no setup properties required)
 
   //! \brief Default constructor.
-  SIMThermoElasticity(bool checkRHS = false) : SIMElasticity<Dim>(checkRHS)
+  SIMThermoElasticity()
   {
     SIMElasticity<Dim>::myContext = "thermoelasticity";
     Dim::myHeading = "Thermo-Elasticity solver";
-    Dim::msgLevel = 1; // prints the solution summary only
     startT = 0.0;
   }
 
   //! \brief The destructor clears the VTF-file pointer.
   virtual ~SIMThermoElasticity() { this->setVTF(nullptr); }
-
-  //! \brief Registers fields for output to a data exporter.
-  void registerFields(DataExporter& exporter)
-  {
-    int results = DataExporter::PRIMARY;
-    if (!Dim::opt.pSolOnly)
-      results |= DataExporter::SECONDARY;
-    exporter.registerField("solid displacement", "solid displacement",
-                           DataExporter::SIM, results);
-    exporter.setFieldValue("solid displacement", this, &sol);
-  }
-
-  //! \brief Initializes the solution vector.
-  void initSol() { sol.resize(this->getNoDOFs(),true); }
 
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
@@ -76,20 +54,15 @@ public:
 
     double old_tol = utl::zero_print_tol;
     utl::zero_print_tol = 1e-16;
-    bool ok = this->savePoints(sol,tp.time.t,tp.step);
+    bool ok = this->savePoints(this->getSolution(),tp.time.t,tp.step);
     utl::zero_print_tol = old_tol;
 
     if (Dim::opt.format < 0 || !ok)
       return ok;
 
     int iDump = 1 + tp.step/Dim::opt.saveInc;
-    return this->writeGlvS(sol,iDump,nBlock);
+    return this->writeGlvS(this->getSolution(),iDump,nBlock);
   }
-
-  //! \brief Dummy method.
-  bool init(const TimeStep&) { return true; }
-  //! \brief Dummy method.
-  bool advanceStep(TimeStep&) { return true; }
 
   //! \brief Computes the solution for the current time step.
   bool solveStep(TimeStep& tp)
@@ -101,8 +74,11 @@ public:
 
     this->setMode(SIM::STATIC);
     this->setQuadratureRule(Dim::opt.nGauss[0]);
-    if (!this->assembleSystem()) return false;
-    if (!this->solveSystem(sol,1)) return false;
+    if (!this->assembleSystem())
+      return false;
+
+    if (!this->solveSystem(SIMsolution::solution.front(),1))
+      return false;
 
     return this->postSolve(tp);
   }
@@ -113,7 +89,7 @@ public:
     Vectors gNorm;
     this->setMode(SIM::RECOVERY);
     this->setQuadratureRule(Dim::opt.nGauss[1]);
-    if (!this->solutionNorms(tp.time,Vectors(1,sol),gNorm))
+    if (!this->solutionNorms(tp.time,this->getSolutions(),gNorm))
       return false;
     else if (gNorm.empty())
       return true;
@@ -137,40 +113,8 @@ public:
     return thelp ? thelp->getInitialTemperature() : nullptr;
   }
 
-  //! \brief Serialize internal state for restarting purposes.
-  //! \param data Container for serialized data
-  bool serialize(DataExporter::SerializeData& data)
-  {
-#ifdef HAS_CEREAL
-    std::ostringstream str;
-    cereal::BinaryOutputArchive ar(str);
-    ar(sol);
-    data.insert(std::make_pair(this->getName(), str.str()));
-    return true;
-#else
-    return false;
-#endif
-  }
-
-  //! \brief Set internal state from a serialized state.
-  //! \param[in] data Container for serialized data
-  bool deSerialize(const DataExporter::SerializeData& data)
-  {
-#ifdef HAS_CEREAL
-    std::stringstream str;
-    auto it = data.find(this->getName());
-    if (it != data.end()) {
-      str << it->second;
-      cereal::BinaryInputArchive ar(str);
-      ar(sol);
-      return true;
-    }
-#endif
-    return false;
-  }
-
 protected:
-  using SIMElasticity<Dim>::parse;
+  using SIMElasticityWrap<Dim>::parse;
   //! \brief Parses a data section from an XML element.
   //! \param[in] elem The XML element to parse
   virtual bool parse(const TiXmlElement* elem)
@@ -209,7 +153,7 @@ protected:
         }
       }
 
-    return this->SIMElasticity<Dim>::parse(elem);
+    return this->SIMElasticityWrap<Dim>::parse(elem);
   }
 
   //! \brief Returns the actual integrand.
@@ -226,7 +170,6 @@ protected:
   }
 
 private:
-  Vector sol;    //!< Primary solution vector
   double startT; //!< Start time for the elasticity solver
 };
 
@@ -255,9 +198,9 @@ template<class Dim> struct SolverConfigurator< SIMThermoElasticity<Dim> >
     if (!elasim.preprocess())
       return 3;
 
-    // Initialize the linear equation system solver
-    elasim.initSystem(elasim.opt.solver);
-    elasim.initSol();
+    // Initialize the linear equation system solver and solution vectors
+    if (!elasim.init(TimeStep()))
+      return 4;
 
     return 0;
   }
