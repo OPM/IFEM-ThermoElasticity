@@ -38,7 +38,8 @@ public:
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param elmInt Local integral for element
-  virtual bool initElement(const std::vector<int>& MNPC, LocalIntegral& elmInt);
+  virtual bool initElement(const std::vector<int>& MNPC, const FiniteElement&,
+                           const Vec3&, size_t, LocalIntegral& elmInt);
 
   using LinearElasticity::evalSol;
   //! \brief Evaluates the secondary solution at a result point.

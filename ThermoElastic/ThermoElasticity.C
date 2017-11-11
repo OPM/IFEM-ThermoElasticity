@@ -15,6 +15,7 @@
 #include "MaterialBase.h"
 #include "ElmMats.h"
 #include "Tensor.h"
+#include "Function.h"
 #include "Utilities.h"
 
 
@@ -26,6 +27,7 @@ ThermoElasticity::ThermoElasticity (unsigned short int n, bool axS)
 
 
 bool ThermoElasticity::initElement (const std::vector<int>& MNPC,
+                                    const FiniteElement&, const Vec3&, size_t,
                                     LocalIntegral& elmInt)
 {
   elmInt.vec.resize(2);
@@ -39,11 +41,18 @@ bool ThermoElasticity::initElement (const std::vector<int>& MNPC,
   if (!myTempVec.empty() && ierr == 0)
     ierr = utl::gather(MNPC,1,myTempVec,elmInt.vec.back());
 
-  if (ierr == 0) return true;
+  if (ierr > 0)
+  {
+    std::cerr <<" *** ThermoElasticity::initElement: Detected "
+              << ierr <<" node numbers out of range."<< std::endl;
+    return false;
+  }
 
-  std::cerr <<" *** ThermoElasticity::initElement: Detected "
-            << ierr <<" node numbers out of range."<< std::endl;
-  return false;
+#if INT_DEBUG > 2
+  std::cout <<"Element displacement vector"<< elmInt.vec.front()
+            <<"Element temperature vector"<< elmInt.vec.back();
+#endif
+  return true;
 }
 
 
