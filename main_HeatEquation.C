@@ -26,7 +26,7 @@
 
 //! \brief Setup and launch the simulation.
 //! \param[in] infile The input file to process
-//! \param[in] tit The time integration method to use. Either BE or BDF2
+//! \param[in] tIt The time integration method to use. Either BE or BDF2
 template<class Dim>
 int runSimulator(char* infile, TimeIntegration::Method tIt)
 {

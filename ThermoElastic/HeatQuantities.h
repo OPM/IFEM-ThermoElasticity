@@ -89,7 +89,6 @@ public:
   //! \param[in] fe Finite element data of current integration point
   //! \param[in] time Parameters for nonlinear and time-dependent simulations
   //! \param[in] X Cartesian coordinates of current integration point
-  //! \param[in] normal Boundary normal vector at current integration point
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
                        const TimeDomain& time, const Vec3& X) const
   {
