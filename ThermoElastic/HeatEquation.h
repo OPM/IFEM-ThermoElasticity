@@ -88,9 +88,10 @@ public:
   //! \brief Evaluates the integrand at an interior point.
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
+  //! \param[in] time Parameters for nonlinear and time-dependent simulations
   //! \param[in] X Cartesian coordinates of current integration point
   virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
-		       const TimeDomain& time, const Vec3& X) const;
+                       const TimeDomain& time, const Vec3& X) const;
 
   using IntegrandBase::evalBou;
   //! \brief Evaluates the integrand at a boundary point.
@@ -188,6 +189,7 @@ public:
 
   //! \brief Returns the name of a norm quantity.
   //! \param[in] i The norm group (one-based index)
+  //! \param[in] j The norm entry (one-based index)
   //! \param[in] prefix Common prefix for all norm names
   virtual std::string getName(size_t i, size_t j, const char* prefix) const;
 

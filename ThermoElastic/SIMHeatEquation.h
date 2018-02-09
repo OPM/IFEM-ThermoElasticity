@@ -71,12 +71,11 @@ template<class Dim, class Integrand> class SIMHeatEquation : public Dim
   };
 
 public:
+  //! \brief Struct containing setup parameters.
   struct SetupProps
   {
-    bool shareGrid;
-    SIMoutput* share;
-
-    SetupProps() : shareGrid(false), share(nullptr) {}
+    bool shareGrid = false;     //!< \e true to share grid with another simulator
+    SIMoutput* share = nullptr; //!< Simulator to share grid with
   };
 
   //! \brief Default constructor.
@@ -498,6 +497,10 @@ private:
 //! \brief Partial specialization for configurator
 template<class Dim, class Integrand>
 struct SolverConfigurator< SIMHeatEquation<Dim,Integrand> > {
+  //! \brief Setup a heat equation simulator.
+  //! \param ad The simulator to set up
+  //! \param[in] props Setup properties
+  //! \param[in] infile The input file to parse
   int setup(SIMHeatEquation<Dim,Integrand>& ad,
             const typename SIMHeatEquation<Dim,Integrand>::SetupProps& props, char* infile)
   {
