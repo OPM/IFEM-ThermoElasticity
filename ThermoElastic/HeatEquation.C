@@ -23,9 +23,8 @@
 
 
 HeatEquation::HeatEquation (unsigned short int n, int order)
-  : bdf(order), mat(nullptr), flux(nullptr), init(nullptr)
+  : IntegrandBase(n), bdf(order), mat(nullptr), flux(nullptr), init(nullptr)
 {
-  nsd = n;
   primsol.resize(order+1);
   sourceTerm = nullptr;
 }
@@ -203,14 +202,13 @@ bool HeatEquationNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
 
 
   // TODO: Add energy-norm of exact error based on analytical solution
-  size_t i, j;
-  for (i = 0; i < pnorm.psol.size(); i++)
-    if (!pnorm.psol[i].empty())
+  for (const Vector& psol : pnorm.psol)
+    if (!psol.empty())
     {
       // Evaluate projected heat flux field
       Vector gradUr(nrcmp);
-      for (j = 0; j < nrcmp; j++)
-        gradUr[j] = pnorm.psol[i].dot(fe.N,j,nrcmp);
+      for (size_t j = 0; j < nrcmp; j++)
+        gradUr[j] = psol.dot(fe.N,j,nrcmp);
 
       // Integrate the energy norm a(U^r,U^r)
       pnorm[ip++] += 0.5*kappa*gradUr.dot(gradUr)*fe.detJxW;
@@ -268,7 +266,5 @@ bool HeatEquationNorm::hasElementContributions (size_t i, size_t j) const
 
 double HeatEquation::getSource (const Vec3& X) const
 {
-  if (sourceTerm)
-    return (*sourceTerm)(X);
-  return 0.0;
+  return sourceTerm ? (*sourceTerm)(X) : 0.0;
 }

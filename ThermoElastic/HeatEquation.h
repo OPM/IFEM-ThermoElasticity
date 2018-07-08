@@ -37,8 +37,8 @@ public:
   public:
     //! \brief Default constructor.
     //! \param[in] n Number of spatial dimensions
-    WeakDirichlet(unsigned short int n) :
-      flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) { nsd=n; }
+    explicit WeakDirichlet(unsigned short int n) : IntegrandBase(n),
+      flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) {}
 
     //! \brief Empty destructor.
     virtual ~WeakDirichlet() {}
@@ -79,7 +79,7 @@ public:
   //! \brief The default constructor initializes all pointers to zero.
   //! \param[in] n Number of spatial dimensions
   //! \param[in] order Temporal order (1,2)
-  HeatEquation(unsigned short int n = 3, int order = 1);
+  explicit HeatEquation(unsigned short int n = 3, int order = 1);
 
   //! \brief Empty destructor.
   virtual ~HeatEquation() {}
