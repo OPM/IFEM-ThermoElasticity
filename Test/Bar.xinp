@@ -2,10 +2,9 @@
 
 <simulation>
 
-  <geometry>
-    <patchfile type="bsplines">bar.g2</patchfile>
+  <geometry Lx="10.0">
     <raiseorder patch="1" u="1" v="1"/>
-    <refine type="uniform" patch="1" u="15" v="15"/>
+    <refine patch="1" u="15" v="15"/>
     <topologysets>
       <set name="Bottom" type="edge">
         <item patch="1">3</item>
@@ -36,6 +35,6 @@
     <initialtemperature>150.0</initialtemperature>
   </thermoelasticity>
 
-  <timestepping start="0" end="1.0" dt="0.1"/>
+  <timestepping start="0.0" end="1.0" dt="0.1"/>
 
 </simulation>

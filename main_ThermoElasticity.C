@@ -30,7 +30,7 @@
 //! \param[in] infile The input file to process
 //! \param[in] tIt The time integration method to use. Either BE or BDF2
 template<class Dim>
-int runSimulator(char* infile, TimeIntegration::Method tIt)
+int runSimulator (char* infile, TimeIntegration::Method tIt)
 {
   typedef SIMHeatEquation<Dim,HeatEquation>               HeatSolver;
   typedef SIMThermoElasticity<Dim>                        ElasticitySolver;
@@ -111,8 +111,6 @@ int main (int argc, char** argv)
       twoD = SIMElasticity<SIM2D>::planeStrain = true;
     else if (!strncmp(argv[i],"-2D",3))
       twoD = true;
-    else if (!strncmp(argv[i],"-msg",4) && i < argc-1)
-      SIMadmin::msgLevel = atoi(argv[++i]);
     else if (!strcmp(argv[i],"-be"))
       tIt = TimeIntegration::BE;
     else if (!strcmp(argv[i],"-bdf2"))
