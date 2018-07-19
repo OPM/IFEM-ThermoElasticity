@@ -71,6 +71,9 @@ else()
     ifem_add_restart_test(Square-heat-bdf2-restart.reg HeatEquation 5)
     ifem_add_restart_test(Annulus-restart.reg ThermoElasticity 5)
   endif()
+
+  ifem_add_vtf_test(Square-heat.vreg HeatEquation)
+  ifem_add_vtf_test(Square.vreg ThermoElasticity)
 endif()
 list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 
