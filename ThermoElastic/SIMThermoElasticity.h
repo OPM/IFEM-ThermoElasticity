@@ -218,7 +218,7 @@ protected:
     if (!Dim::myProblem)
     {
       if (Dim::dimension == 2)
-        Dim::myProblem = new ThermoElasticity(2,this->axiSymmetry);
+        Dim::myProblem = new ThermoElasticity(2,Elastic::axiSymmetry);
       else
         Dim::myProblem = new ThermoElasticity(Dim::dimension);
     }

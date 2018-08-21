@@ -108,7 +108,7 @@ int main (int argc, char** argv)
     if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
     else if (!strncmp(argv[i],"-2Dpstra",8))
-      twoD = SIMElasticity<SIM2D>::planeStrain = true;
+      twoD = Elastic::planeStrain = true;
     else if (!strncmp(argv[i],"-2D",3))
       twoD = true;
     else if (!strcmp(argv[i],"-be"))
