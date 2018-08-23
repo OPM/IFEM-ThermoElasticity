@@ -307,13 +307,16 @@ public:
       return false;
 
     std::ostream* os = &std::cout;
+    std::ofstream of;
 
     if (Dim::myPid == 0) {
       if (bf.file.empty())
         std::cout << std::endl;
-      else
-        os = new std::ofstream(bf.file.c_str(),
-                               tp.step == 1 ? std::ios::out : std::ios::app);
+      else {
+        of.open(bf.file.c_str(),
+                tp.step == 1 ? std::ios::out : std::ios::app);
+        os = &of;
+      }
 
       char line[256];
       if (tp.step == 1) {
@@ -324,9 +327,6 @@ public:
       }
       sprintf(line,"%10.6f %11.6g\n", tp.time.t, integral[0]);
       *os << line;
-
-      if (!bf.file.empty())
-        delete os;
     }
 
     return true;
