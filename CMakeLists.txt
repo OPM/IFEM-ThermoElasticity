@@ -53,7 +53,7 @@ install(TARGETS HeatEquation ThermoElasticity DESTINATION bin)
 set(EXTRA_DOXY_PATHS "${PROJECT_SOURCE_DIR} \\
                       ${PROJECT_BINARY_DIR} \\
                       ${PROJECT_SOURCE_DIR}/ThermoElastic \\
-                      ${PROJECT_SOURCE_DIR}/../IFEM-Elasticity")
+                      ${ELASTICITY_DIR}")
 add_doc_target(ThermoElasticity ThermoElasticity)
 
 if(MPI_FOUND)
