@@ -5,23 +5,23 @@ Step 1
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
+    Scalar: 'temperature'
 Step 2
   Element block 1
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 3
@@ -29,15 +29,15 @@ Step 3
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 4
@@ -45,15 +45,15 @@ Step 4
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 5
@@ -61,15 +61,15 @@ Step 5
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 6
@@ -77,15 +77,15 @@ Step 6
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 7
@@ -93,15 +93,15 @@ Step 7
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 8
@@ -109,15 +109,15 @@ Step 8
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 9
@@ -125,15 +125,15 @@ Step 9
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 10
@@ -141,15 +141,15 @@ Step 10
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 11
@@ -157,14 +157,14 @@ Step 11
     289 nodes
     256 elements
     Displacement: 'Solution'
-    Scalar: 'P1'
-    Scalar: 'P2'
-    Scalar: 'temperature'
     Scalar: 'u_x'
     Scalar: 'u_y'
     Scalar: 's_xx'
     Scalar: 's_yy'
     Scalar: 's_xy'
     Scalar: 'von Mises stress'
+    Scalar: 'P1'
+    Scalar: 'P2'
+    Scalar: 'temperature'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
