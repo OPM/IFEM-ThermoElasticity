@@ -45,7 +45,7 @@ public:
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
   //! \param[in] nBlock Running VTF block counter
-  bool saveStep(const TimeStep& tp, int& nBlock)
+  virtual bool saveStep(const TimeStep& tp, int& nBlock)
   {
     if (tp.time.t+0.001*tp.time.dt < startT)
       return true;
@@ -65,7 +65,7 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  bool solveStep(TimeStep& tp)
+  virtual bool solveStep(TimeStep& tp)
   {
     if (tp.time.t+0.001*tp.time.dt < startT)
       return true;
@@ -80,12 +80,6 @@ public:
     if (!this->solveSystem(SIMsolution::solution.front(),1))
       return false;
 
-    return this->postSolve(tp);
-  }
-
-  //! \brief Postprocesses the solution of current time step.
-  bool postSolve(const TimeStep& tp)
-  {
     Vectors gNorm;
     this->setMode(SIM::RECOVERY);
     this->setQuadratureRule(Dim::opt.nGauss[1]);
@@ -185,16 +179,13 @@ template<class Dim> struct SolverConfigurator< SIMThermoElasticity<Dim> >
   //! \param infile The input file to parse
   int setup(SIMThermoElasticity<Dim>& elasim, const bool&, char* infile)
   {
-    utl::profiler->start("Model input");
-
+    // Read the input file
     ASMstruct::resetNumbering();
-    if (!elasim.read(infile))
+    if (!elasim.readModel(infile))
       return 2;
 
-    utl::profiler->stop("Model input");
-    elasim.opt.print(IFEM::cout) << std::endl;
-
     // Preprocess the model and establish FE data structures
+    elasim.opt.print(IFEM::cout) << std::endl;
     if (!elasim.preprocess())
       return 3;
 

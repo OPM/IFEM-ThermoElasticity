@@ -187,6 +187,8 @@ public:
   //! \brief Initializes the temperature solution vectors.
   void initSol()
   {
+    this->initSystem(Dim::opt.solver);
+
     size_t n, nSols = this->getNoSolutions();
     std::string str = "temperature1";
     this->initSolution(this->getNoDOFs(),nSols);
@@ -250,9 +252,6 @@ public:
     return true;
   }
 
-  //! \brief Dummy method.
-  bool postSolve(const TimeStep&) { return true; }
-
   //! \brief Evaluates and prints out solution norms.
   void printFinalNorms(const TimeStep& tp)
   {
@@ -276,7 +275,7 @@ public:
     IFEM::cout << std::endl;
   }
 
-  //! \brief Compute and save a boundary heat flux or the stored energy in a volume
+  //! \brief Compute and save boundary heat flux or stored energy in a volume
   //! \param[in] bf Description of integration domain
   //! \param[in] tp Time stepping information
   //! \param[in] flux True to calculate a heat flux, false for stored energy
@@ -467,35 +466,30 @@ private:
 template<class Dim, class Integrand>
 struct SolverConfigurator< SIMHeatEquation<Dim,Integrand> > {
   //! \brief Setup a heat equation simulator.
-  //! \param ad The simulator to set up
+  //! \param sim The simulator to set up
   //! \param[in] props Setup properties
   //! \param[in] infile The input file to parse
-  int setup(SIMHeatEquation<Dim,Integrand>& ad,
+  int setup(SIMHeatEquation<Dim,Integrand>& sim,
             const typename SIMHeatEquation<Dim,Integrand>::SetupProps& props, char* infile)
   {
-    utl::profiler->start("Model input");
-
     if (props.shareGrid)
       // Let the turbulence solver use the same grid as the velocity solver
-      ad.clonePatches(props.share->getFEModel(), props.share->getGlob2LocMap());
+      sim.clonePatches(props.share->getFEModel(),props.share->getGlob2LocMap());
 
-    // Reset the global element and node numbers
+    // Read the input file
     ASMstruct::resetNumbering();
-    if (!ad.read(infile))
+    if (!sim.readModel(infile))
       return 2;
 
-    utl::profiler->stop("Model input");
-
-    // Preprocess the model and establish data structures for the algebraic system
-    if (!ad.preprocess())
+    // Preprocess the model and establish FE data structures
+    if (!sim.preprocess())
       return 3;
 
     // Initialize the linear equation system solver
-    ad.initSystem(ad.opt.solver);
-    ad.initSol();
+    sim.initSol();
 
     if (props.shareGrid)
-      ad.setVTF(props.share->getVTF());
+      sim.setVTF(props.share->getVTF());
 
     return 0;
   }
