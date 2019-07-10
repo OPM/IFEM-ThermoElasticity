@@ -58,7 +58,9 @@ add_doc_target(ThermoElasticity ThermoElasticity)
 
 if(MPI_FOUND)
   # Add parallel tests here
-else()
+endif()
+
+if(NOT MPI_FOUND OR IFEM_SERIAL_TESTS_IN_PARALLEL)
   ifem_add_test(Annulus.reg ThermoElasticity)
   ifem_add_test(Bar.reg ThermoElasticity)
   ifem_add_test(Square.reg ThermoElasticity)
