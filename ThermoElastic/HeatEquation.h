@@ -16,19 +16,18 @@
 
 #include "IntegrandBase.h"
 #include "EqualOrderOperators.h"
-#include "LinIsotropic.h"
+#include "MaterialBase.h"
 #include "BDF.h"
 
 
 /*!
   \brief Class representing the integrand of the heat equation.
-  \details Time stepping is done using BDF1/BDF2
+  \details Time stepping is done using BDF1/BDF2.
 */
 
 class HeatEquation : public IntegrandBase
 {
 public:
-  typedef LinIsotropic MaterialType; //!< Material used in this integrand
   using WeakOps = EqualOrderOperators::Weak; //!< Convenience rename
 
   //! \brief Class representing the weak Dirichlet integrand.
@@ -38,7 +37,7 @@ public:
     //! \brief Default constructor.
     //! \param[in] n Number of spatial dimensions
     explicit WeakDirichlet(unsigned short int n) : IntegrandBase(n),
-      flux(nullptr), mat(nullptr), envT(273.5), envCond(1.0) {}
+      mat(nullptr), flux(nullptr), envT(273.5), envCond(1.0) {}
 
     //! \brief Empty destructor.
     virtual ~WeakDirichlet() {}
@@ -70,15 +69,15 @@ public:
     void setEnvConductivity(double alpha) { envCond = alpha; }
 
   private:
-    RealFunc* flux; //!< Flux function
     Material* mat;  //!< Material parameters
+    RealFunc* flux; //!< Flux function
     double envT;    //!< Temperature of environment
     double envCond; //!< Conductivity of environment
   };
 
   //! \brief The default constructor initializes all pointers to zero.
   //! \param[in] n Number of spatial dimensions
-  //! \param[in] order Temporal order (1,2)
+  //! \param[in] order Temporal order (1 or 2)
   explicit HeatEquation(unsigned short int n = 3, int order = 1);
 
   //! \brief Empty destructor.
@@ -107,27 +106,24 @@ public:
 
   //! \brief Defines the material properties.
   void setMaterial(Material* material) { mat = material; }
+  //! \brief Returns current material.
+  const Material* getMaterial() const { return mat; }
 
   //! \brief Defines the source term
   void setSource(RealFunc* src) { sourceTerm = src; }
-
   //! \brief Evaluates the source term (if any) at a specified point.
-  //! \param[in] X Cartesian coordinate of current integration point
   double getSource(const Vec3& X) const;
-
-  //! \brief Obtain the current material.
-  const Material* getMaterial() const { return mat; }
 
   //! \brief Defines the flux function.
   void setFlux(RealFunc* f) { flux = f; }
 
   //! \brief Returns the name of the primary solution field.
   //! \param[in] prefix Name prefix
-  virtual std::string getField1Name(size_t, const char* prefix = nullptr) const;
+  virtual std::string getField1Name(size_t, const char* prefix) const;
   //! \brief Returns the name of a secondary solution field component.
   //! \param[in] i Field component index
   //! \param[in] prefix Name prefix for all components
-  virtual std::string getField2Name(size_t i, const char* prefix = nullptr) const;
+  virtual std::string getField2Name(size_t i, const char* prefix) const;
 
   //! \brief Sets the function of the initial temperature field.
   void setInitialTemperature(const RealFunc* f)  { init = f; }

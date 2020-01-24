@@ -31,7 +31,6 @@
 #include "IFEM.h"
 #include "tinyxml.h"
 #include <fstream>
-#include <memory>
 
 
 /*!
@@ -78,11 +77,12 @@ public:
   //! \brief Default constructor.
   //! \param[in] order Order of temporal integration (1 or 2)
   SIMHeatEquation(int order) :
-    Dim(1), he(Dim::dimension,order), wdc(Dim::dimension)
+    Dim(1), heq(Dim::dimension,order), wdc(Dim::dimension)
   {
-    Dim::myProblem = &he;
+    Dim::myProblem = &heq;
     Dim::myHeading = "Heat equation solver";
     inputContext = "heatequation";
+    srcF = nullptr;
   }
 
   //! \brief The destructor zero out the integrand pointer (deleted by parent).
@@ -90,20 +90,11 @@ public:
   {
     Dim::myProblem = nullptr;
     Dim::myInts.clear();
-  }
 
-  //! \brief Parses a source term XML element
-  void parseSource(const TiXmlElement* elem)
-  {
-    std::string type;
-    utl::getAttribute(elem, "type", type, true);
+    for (Material* mat : mVec)
+      delete mat;
 
-    if (type == "expression" && elem->FirstChild()) {
-      IFEM::cout << "\n\tSource function:";
-      RealFunc *func = utl::parseRealFunc(elem->FirstChild()->Value(), type);
-      IFEM::cout << std::endl;
-      he.setSource(func);
-    }
+    delete srcF;
   }
 
   using Dim::parse;
@@ -111,20 +102,16 @@ public:
   virtual bool parse(const TiXmlElement* elem)
   {
     if (!strcasecmp(elem->Value(),"thermoelasticity")) {
-      typename Integrand::MaterialType* mat = nullptr;
       const TiXmlElement* child = elem->FirstChildElement();
       for (; child; child = child->NextSiblingElement())
         if (!strcasecmp(child->Value(),"isotropic")) {
           int code = this->parseMaterialSet(child,mVec.size());
           IFEM::cout <<"\tMaterial code "<< code <<":";
-          mat = new typename Integrand::MaterialType();
-          mat->parse(child);
-          mVec.push_back(std::unique_ptr<typename Integrand::MaterialType>(mat));
+          mVec.push_back(new LinIsotropic());
+          mVec.back()->parse(child);
+          heq.setMaterial(mVec.back());
+          wdc.setMaterial(mVec.back());
         }
-      if (mat) {
-        wdc.setMaterial(mat);
-        he.setMaterial(mat);
-      }
       return true;
     }
     else if (strcasecmp(elem->Value(),inputContext.c_str()))
@@ -132,7 +119,7 @@ public:
 
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
-      if (strcasecmp(child->Value(),"anasol") == 0) {
+      if (!strcasecmp(child->Value(),"anasol")) {
         IFEM::cout <<"\tAnalytical solution: Expression"<< std::endl;
         if (!Dim::mySol)
           Dim::mySol = new AnaSol(child);
@@ -155,7 +142,7 @@ public:
         utl::getAttribute(child,"stride",flux.timeIncr);
         if (flux.set.empty())
           utl::getAttribute(child,"code",flux.code);
-        if (!flux.set.empty()) {
+        else {
           size_t oldcode = strcasecmp(child->Value(),"heatflux") ? senergy.size() :
                                                                    fluxes.size();
           flux.code = this->getUniquePropertyCode(flux.set,(oldcode+1)*1000);
@@ -172,8 +159,16 @@ public:
         wdc.setEnvConductivity(alpha);
       }
 
-      else if (!strcasecmp(child->Value(),"source"))
-        this->parseSource(child);
+      else if (!strcasecmp(child->Value(),"source")) {
+        std::string type;
+        utl::getAttribute(child, "type", type, true);
+        if (type == "expression" && child->FirstChild() && !srcF) {
+          IFEM::cout <<"\tSource function (expression)";
+          srcF = utl::parseRealFunc(child->FirstChild()->Value(),type);
+          IFEM::cout << std::endl;
+          heq.setSource(srcF);
+        }
+      }
 
       else
         this->Dim::parse(child);
@@ -215,7 +210,7 @@ public:
   bool advanceStep(TimeStep&)
   {
     this->pushSolution(); // Update solution vectors between time steps
-    he.advanceStep();
+    heq.advanceStep();
     return true;
   }
 
@@ -289,7 +284,7 @@ public:
     if (flux)
       integral = SIM::getBoundaryForce(solution,this,bf.code,tp.time);
     else {
-      HeatEquationStoredEnergy<Integrand> energy(he);
+      HeatEquationStoredEnergy<Integrand> energy(heq);
       energy.initBuffer(this->getNoElms());
       SIM::integrate(solution,this,bf.code,tp.time,&energy);
       energy.assemble(integral);
@@ -376,9 +371,9 @@ public:
   }
 
   //! \brief Sets the function of the initial temperature field.
-  void setInitialTemperature(const RealFunc* f) { he.setInitialTemperature(f); }
+  void setInitialTemperature(const RealFunc* f) { heq.setInitialTemperature(f); }
   //! \brief Returns the function of the initial temperature field.
-  const RealFunc* getInitialTemperature() const { return he.getInitialTemperature(); }
+  const RealFunc* getInitialTemperature() const { return heq.getInitialTemperature(); }
 
   //! \brief Serialize internal state for restarting purposes.
   //! \param data Container for serialized data
@@ -394,7 +389,7 @@ public:
     if (!this->restoreSolution(data,this->getName()))
       return false;
 
-    he.advanceStep();
+    heq.advanceStep();
     return true;
   }
 
@@ -418,8 +413,8 @@ protected:
     if (propInd >= mVec.size())
       propInd = mVec.size()-1;
 
-    he.setMaterial(mVec[propInd].get());
-    wdc.setMaterial(mVec[propInd].get());
+    heq.setMaterial(mVec[propInd]);
+    wdc.setMaterial(mVec[propInd]);
     return true;
   }
 
@@ -431,29 +426,29 @@ protected:
     if (tit == Dim::myScalars.end())
       return false;
 
-    he.setFlux(tit->second);
+    heq.setFlux(tit->second);
     wdc.setFlux(tit->second);
     return true;
   }
 
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to couple the weak Dirichlet
-  //! integrand to the generic Neumann property codes.
+  //! integrand to the Robin property codes.
   virtual void preprocessA()
   {
     Dim::myInts.insert(std::make_pair(0,Dim::myProblem));
 
-    // Couple the weak Dirichlet integrand to the generic Neumann property codes
     for (const Property& p : Dim::myProps)
-      if (p.pcode == Property::NEUMANN_GENERIC || p.pcode == Property::ROBIN)
+      if (p.pcode == Property::ROBIN)
         if (Dim::myInts.find(p.pindx) == Dim::myInts.end())
           Dim::myInts.insert(std::make_pair(p.pindx,&wdc));
   }
 
 private:
-  Integrand he;                 //!< Integrand
+  Integrand                   heq;  //!< Main integrand
   typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
-  std::vector<std::unique_ptr<typename Integrand::MaterialType>> mVec;  //!< Material data
+  std::vector<Material*>      mVec; //!< Material data
+  RealFunc*                   srcF; //!< Source function
 
   std::string inputContext; //!< Input context
 
