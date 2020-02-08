@@ -119,35 +119,42 @@ protected:
     const TiXmlElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
       if (!strcasecmp(child->Value(),"start"))
-        utl::getAttribute(child,"time",startT);
-
-      else if (!strcasecmp(child->Value(),"anasol"))
-      {
-        std::string type;
-        utl::getAttribute(child,"type",type,true);
-        if (type == "pipe")
-        {
-          double Ri = 0.0, Ro = 0.0, Ti = 0.0, To = 0.0, T0 = 273.0;
-          double E = 0.0, nu = 0.0, alpha = 0.0;
-          bool polar = false;
-          utl::getAttribute(child,"Ri",Ri);
-          utl::getAttribute(child,"Ro",Ro);
-          utl::getAttribute(child,"Ti",Ti);
-          utl::getAttribute(child,"To",To);
-          utl::getAttribute(child,"Tref",T0);
-          utl::getAttribute(child,"E",E);
-          utl::getAttribute(child,"nu",nu);
-          utl::getAttribute(child,"alpha",alpha);
-          utl::getAttribute(child,"polar",polar);
-          IFEM::cout <<"\tAnalytical solution: Pipe Ri="<< Ri <<" Ro="<< Ro
-                     <<" Ti="<< Ti <<" To="<< To << std::endl;
-          if (!Dim::mySol)
-            Dim::mySol = new AnaSol(new Pipe(Ri,Ro,Ti,To,T0,E,nu,alpha,
-                                             Dim::dimension == 3, polar));
-        }
-      }
+        if (utl::getAttribute(child,"time",startT))
+          IFEM::cout <<"\tStart time elasticity solver: "<< startT << std::endl;
 
     return this->SIMElasticityWrap<Dim>::parse(elem);
+  }
+
+  using SIMElasticityWrap<Dim>::parseAnaSol;
+  //! \brief Parses the analytical solution from an XML element.
+  virtual bool parseAnaSol(const TiXmlElement* elem)
+  {
+    IFEM::cout <<"  Parsing <"<< elem->Value() <<">"<< std::endl;
+
+    std::string type;
+    utl::getAttribute(elem,"type",type,true);
+    if (type == "pipe")
+    {
+      double Ri = 0.0, Ro = 0.0, Ti = 0.0, To = 0.0, T0 = 273.0;
+      double E = 0.0, nu = 0.0, alpha = 0.0;
+      bool polar = false;
+      utl::getAttribute(elem,"Ri",Ri);
+      utl::getAttribute(elem,"Ro",Ro);
+      utl::getAttribute(elem,"Ti",Ti);
+      utl::getAttribute(elem,"To",To);
+      utl::getAttribute(elem,"Tref",T0);
+      utl::getAttribute(elem,"E",E);
+      utl::getAttribute(elem,"nu",nu);
+      utl::getAttribute(elem,"alpha",alpha);
+      utl::getAttribute(elem,"polar",polar);
+      IFEM::cout <<"\tAnalytical solution: Pipe Ri="<< Ri <<" Ro="<< Ro
+                 <<" Ti="<< Ti <<" To="<< To << std::endl;
+      if (!Dim::mySol)
+        Dim::mySol = new AnaSol(new Pipe(Ri,Ro,Ti,To,T0,E,nu,alpha,
+                                         Dim::dimension == 3, polar));
+    }
+
+    return true;
   }
 
   //! \brief Returns the actual integrand.
