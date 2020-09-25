@@ -53,8 +53,8 @@ int runSimulator(char* infile, TimeIntegration::Method tIt)
 
   // HDF5 output
   if (model.opt.dumpHDF5(infile))
-    solver.handleDataOutput(model.opt.hdf5,model.opt.saveInc,
-                            model.opt.restartInc);
+    solver.handleDataOutput(model.opt.hdf5,model.getProcessAdm(),
+                            model.opt.saveInc,model.opt.restartInc);
 
   int res = solver.solveProblem(infile,"Solving the heat conduction problem");
   if (!res) model.printFinalNorms(solver.getTimePrm());

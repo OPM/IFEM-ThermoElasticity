@@ -60,7 +60,8 @@ int runSimulator (char* infile, TimeIntegration::Method tIt)
     return 2;
 
   if (tempModel.opt.dumpHDF5(infile))
-    solver.handleDataOutput(sopt.hdf5,sopt.saveInc,sopt.restartInc);
+    solver.handleDataOutput(sopt.hdf5,tempModel.getProcessAdm(),
+                            sopt.saveInc,sopt.restartInc);
 
   return solver.solveProblem(infile,"Solving the Thermo-Elasticity problem");
 }
