@@ -22,6 +22,7 @@
 #include "ASMstruct.h"
 #include "IFEM.h"
 #include "Profiler.h"
+#include "TimeStep.h"
 #include "Utilities.h"
 
 #include "tinyxml.h"
