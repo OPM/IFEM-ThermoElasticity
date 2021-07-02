@@ -16,10 +16,15 @@
 
 #include "SIMElasticityWrap.h"
 #include "SIMconfigure.h"
+#include "ElasticityUtils.h"
 #include "ThermoElasticity.h"
 #include "Linear/AnalyticSolutions.h"
 #include "ASMstruct.h"
+#include "IFEM.h"
 #include "Profiler.h"
+#include "Utilities.h"
+
+#include "tinyxml.h"
 
 
 /*!
