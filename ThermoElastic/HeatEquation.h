@@ -19,6 +19,8 @@
 #include "MaterialBase.h"
 #include "BDF.h"
 
+class RealFunc;
+
 
 /*!
   \brief Class representing the integrand of the heat equation.
@@ -109,7 +111,7 @@ public:
   //! \brief Returns current material.
   const Material* getMaterial() const { return mat; }
 
-  //! \brief Defines the source term
+  //! \brief Defines the source term.
   void setSource(RealFunc* src) { sourceTerm = src; }
   //! \brief Evaluates the source term (if any) at a specified point.
   double getSource(const Vec3& X) const;
@@ -145,7 +147,7 @@ public:
   //! \brief Returns the initial temperature in a point.
   //! \param[in] X The coordinate of the point.
   //! \returns Initial temperature
-  double initialTemperature(const Vec3& X) const { return init?(*init)(X):0.0; }
+  double initialTemperature(const Vec3& X) const;
 
 private:
   TimeIntegration::BDF bdf; //!< BDF helper class

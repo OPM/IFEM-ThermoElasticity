@@ -19,6 +19,7 @@
 #include "ElmNorm.h"
 #include "MaterialBase.h"
 #include "Vec3Oper.h"
+#include "Function.h"
 #include "AnaSol.h"
 
 
@@ -267,4 +268,10 @@ bool HeatEquationNorm::hasElementContributions (size_t i, size_t j) const
 double HeatEquation::getSource (const Vec3& X) const
 {
   return sourceTerm ? (*sourceTerm)(X) : 0.0;
+}
+
+
+double HeatEquation::initialTemperature (const Vec3& X) const
+{
+  return init ? (*init)(X) : 0.0;
 }
