@@ -17,6 +17,7 @@
 #include "TimeDomain.h"
 #include "ElmMats.h"
 #include "ElmNorm.h"
+#include "Function.h"
 #include "MaterialBase.h"
 #include "Vec3Oper.h"
 #include "AnaSol.h"
@@ -97,6 +98,12 @@ std::string HeatEquation::getField2Name (size_t i, const char* prefix) const
     return s[i];
 
   return prefix + std::string(" ") + s[i];
+}
+
+
+double HeatEquation::initialTemperature (const Vec3& X) const
+{
+  return init  ? (*init)(X) : 0.0;
 }
 
 

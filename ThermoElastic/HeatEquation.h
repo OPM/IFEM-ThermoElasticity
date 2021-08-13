@@ -20,6 +20,9 @@
 #include "BDF.h"
 
 
+class RealFunc;
+
+
 /*!
   \brief Class representing the integrand of the heat equation.
   \details Time stepping is done using BDF1/BDF2.
@@ -145,7 +148,7 @@ public:
   //! \brief Returns the initial temperature in a point.
   //! \param[in] X The coordinate of the point.
   //! \returns Initial temperature
-  double initialTemperature(const Vec3& X) const { return init?(*init)(X):0.0; }
+  double initialTemperature(const Vec3& X) const;
 
 private:
   TimeIntegration::BDF bdf; //!< BDF helper class
