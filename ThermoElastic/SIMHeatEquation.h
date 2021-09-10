@@ -99,7 +99,7 @@ public:
 
   using Dim::parse;
   //! \brief Parses a data section from an XML element.
-  virtual bool parse(const TiXmlElement* elem)
+  bool parse(const TiXmlElement* elem) override
   {
     if (!strcasecmp(elem->Value(),"thermoelasticity")) {
       const TiXmlElement* child = elem->FirstChildElement();
@@ -177,7 +177,7 @@ public:
   }
 
   //! \brief Returns the name of this simulator (for use in the HDF5 export).
-  virtual std::string getName() const { return "HeatEquation"; }
+  std::string getName() const override { return "HeatEquation"; }
 
   //! \brief Initializes the temperature solution vectors.
   void initSol()
@@ -377,14 +377,14 @@ public:
 
   //! \brief Serialize internal state for restarting purposes.
   //! \param data Container for serialized data
-  bool serialize(SerializeMap& data)
+  bool serialize(SerializeMap& data) const override
   {
     return this->saveSolution(data,this->getName());
   }
 
   //! \brief Set internal state from a serialized state.
   //! \param[in] data Container for serialized data
-  bool deSerialize(const SerializeMap& data)
+  bool deSerialize(const SerializeMap& data) override
   {
     if (!this->restoreSolution(data,this->getName()))
       return false;
@@ -397,7 +397,7 @@ protected:
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to ensure that threading groups are
   //! established for the patch faces subjected to boundary flux integration.
-  virtual bool preprocessB()
+  bool preprocessB() override
   {
     for (const Property& p : Dim::myProps)
       if (std::find_if(fluxes.begin(),fluxes.end(),hasCode(p.pindx)) != fluxes.end())
@@ -408,7 +408,7 @@ protected:
 
   //! \brief Initializes material properties for integration of interior terms.
   //! \param[in] propInd Physical property index
-  virtual bool initMaterial(size_t propInd)
+  bool initMaterial(size_t propInd) override
   {
     if (propInd >= mVec.size())
       propInd = mVec.size()-1;
@@ -420,7 +420,7 @@ protected:
 
   //! \brief Initializes for integration of Neumann terms for a given property.
   //! \param[in] propInd Physical property index
-  virtual bool initNeumann(size_t propInd)
+  bool initNeumann(size_t propInd) override
   {
     typename Dim::SclFuncMap::const_iterator tit = Dim::myScalars.find(propInd);
     if (tit == Dim::myScalars.end())
@@ -434,7 +434,7 @@ protected:
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to couple the weak Dirichlet
   //! integrand to the Robin property codes.
-  virtual void preprocessA()
+  void preprocessA() override
   {
     Dim::myInts.insert(std::make_pair(0,Dim::myProblem));
 
