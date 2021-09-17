@@ -234,7 +234,7 @@ size_t HeatEquationNorm::getNoFields (int group) const
 std::string HeatEquationNorm::getName (size_t i, size_t j,
                                        const char* prefix) const
 {
-  if (i == 0 || j == 0 || j > 4)
+  if (i == 0 || j == 0 || j > 7)
     return this->NormBase::getName(i,j,prefix);
 
   static const char* s[] = {
@@ -242,6 +242,7 @@ std::string HeatEquationNorm::getName (size_t i, size_t j,
     "a(theta^h,theta^h)^0.5",
     "(q,theta^h)^0.5",
     "(theta, theta)^0.5",
+    "(e, e)^0.5, e=theta-theta^h",
     "a(theta,theta)^0.5",
     "a(e,e)^0.5, e=theta-theta^h",
     "a(theta^r,theta^r)^0.5",
@@ -250,7 +251,7 @@ std::string HeatEquationNorm::getName (size_t i, size_t j,
     "effectivity index"
   };
 
-  size_t k = i > 1 ? j+3 : j-1;
+  size_t k = i > 1 ? j+6 : j-1;
 
   if (!prefix)
     return s[k];
