@@ -149,7 +149,7 @@ public:
   //! \returns Initial temperature
   double initialTemperature(const Vec3& X) const;
 
-private:
+protected:
   TimeIntegration::BDF bdf; //!< BDF helper class
   Material* mat;            //!< Material parameters
   RealFunc* flux;           //!< Pointer to the heat flux field
