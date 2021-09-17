@@ -444,8 +444,9 @@ protected:
           Dim::myInts.insert(std::make_pair(p.pindx,&wdc));
   }
 
-private:
   Integrand                   heq;  //!< Main integrand
+
+private:
   typename Integrand::WeakDirichlet wdc; //!< Weak dirichlet integrand
   std::vector<Material*>      mVec; //!< Material data
   RealFunc*                   srcF; //!< Source function
