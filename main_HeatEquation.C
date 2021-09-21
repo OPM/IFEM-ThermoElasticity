@@ -12,6 +12,7 @@
 //==============================================================================
 
 #include "IFEM.h"
+#include "SIM1D.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
 #include "SIMSolver.h"
@@ -19,6 +20,7 @@
 #include "HeatEquation.h"
 #include "TimeIntUtils.h"
 #include "Profiler.h"
+#include "SIMargsBase.h"
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
@@ -93,26 +95,31 @@ int main (int argc, char** argv)
   Profiler prof(argv[0]);
   utl::profiler->start("Initialization");
 
-  bool twoD = false;
   char* infile = nullptr;
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
+  SIMargsBase args("heatequation");
 
   IFEM::Init(argc,argv,"Heat conduction solver");
 
   for (int i = 1; i < argc; i++)
-    if (SIMoptions::ignoreOldOptions(argc,argv,i))
+    if (infile == argv[i] || args.parseArg(argv[i]))
+      ;
+    else if (SIMoptions::ignoreOldOptions(argc,argv,i))
       ; // ignore the obsolete option
-    else if (!strncmp(argv[i],"-2D",3))
-      twoD = true;
     else if (!strncmp(argv[i],"-msg",4) && i < argc-1)
       SIMadmin::msgLevel = atoi(argv[++i]);
     else if (!strcmp(argv[i],"-be"))
       tIt = TimeIntegration::BE;
     else if (!strcmp(argv[i],"-bdf2"))
       tIt = TimeIntegration::BDF2;
-    else if (!infile)
+    else if (!infile) {
       infile = argv[i];
-    else
+      if (strcasestr(infile,".xinp")) {
+        if (!args.readXML(infile,false))
+          return 1;
+        i = 0;
+      }
+    } else
       std::cerr <<"  ** Unknown option ignored: "<< argv[i] << std::endl;
 
   if (!infile)
@@ -129,7 +136,9 @@ int main (int argc, char** argv)
   IFEM::getOptions().print(IFEM::cout) << std::endl;
   utl::profiler->stop("Initialization");
 
-  if (twoD)
+  if (args.dim == 1)
+    return runSimulator<SIM1D>(infile,tIt);
+  else if (args.dim == 2)
     return runSimulator<SIM2D>(infile,tIt);
   else
     return runSimulator<SIM3D>(infile,tIt);
