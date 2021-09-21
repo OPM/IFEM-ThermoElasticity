@@ -14,9 +14,7 @@
 
   <heatequation>
     <boundaryconditions>
-      <dirichlet set="all" comp="1" type="expression">
-        1/3*pow(x,3)*pow(y,2)*sin(t)
-      </dirichlet>
+      <dirichlet set="all" comp="1" type="anasol"/>
     </boundaryconditions>
     <source type="expression">
       ut=1/3*pow(x,3)*pow(y,2)*cos(t);
