@@ -94,6 +94,10 @@ public:
     for (Material* mat : mVec)
       delete mat;
 
+    // To prevent the SIMbase destructor try to delete already deleted functions
+    if (aCode[0] > 0) Dim::myScalars.erase(aCode[0]);
+    if (aCode[1] > 0) Dim::myVectors.erase(aCode[1]);
+
     delete srcF;
   }
 
@@ -438,10 +442,37 @@ protected:
   {
     Dim::myInts.insert(std::make_pair(0,Dim::myProblem));
 
-    for (const Property& p : Dim::myProps)
-      if (p.pcode == Property::ROBIN)
+    for (Property& p : Dim::myProps)
+      if (p.pcode == Property::ROBIN) {
         if (Dim::myInts.find(p.pindx) == Dim::myInts.end())
           Dim::myInts.insert(std::make_pair(p.pindx,&wdc));
+      } else if (p.pcode == Property::DIRICHLET_ANASOL) {
+        if (!Dim::mySol->getScalarSol())
+          p.pcode = Property::UNDEFINED;
+        else if (aCode[0] == abs(p.pindx))
+          p.pcode = Property::DIRICHLET_INHOM;
+        else if (aCode[0] == 0)
+        {
+          aCode[0] = abs(p.pindx);
+          Dim::myScalars[aCode[0]] = Dim::mySol->getScalarSol();
+          p.pcode = Property::DIRICHLET_INHOM;
+        }
+        else
+          p.pcode = Property::UNDEFINED;
+      } else if (p.pcode == Property::NEUMANN_ANASOL) {
+        if (!Dim::mySol->getScalarSecSol())
+          p.pcode = Property::UNDEFINED;
+        else if (aCode[1] == p.pindx)
+          p.pcode = Property::NEUMANN;
+        else if (aCode[1] == 0)
+        {
+          aCode[1] = p.pindx;
+          Dim::myVectors[aCode[1]] = Dim::mySol->getScalarSecSol();
+          p.pcode = Property::NEUMANN;
+        }
+        else
+          p.pcode = Property::UNDEFINED;
+      }
   }
 
   Integrand                   heq;  //!< Main integrand
@@ -455,6 +486,7 @@ private:
 
   std::vector<BoundaryFlux> fluxes;  //!< Heat fluxes to calculate
   std::vector<BoundaryFlux> senergy; //!< Stored energies to calculate
+  int aCode[2] = {0}; //!< Analytical BC code (used by destructor)
 };
 
 
