@@ -38,8 +38,8 @@ public:
   //! \brief Initializes current element for numerical integration.
   //! \param[in] MNPC Matrix of nodal point correspondance for current element
   //! \param elmInt Local integral for element
-  virtual bool initElement(const std::vector<int>& MNPC, const FiniteElement&,
-                           const Vec3&, size_t, LocalIntegral& elmInt);
+  bool initElement(const std::vector<int>& MNPC, const FiniteElement&,
+                   const Vec3&, size_t, LocalIntegral& elmInt) override;
 
   using LinearElasticity::evalSol;
   //! \brief Evaluates the secondary solution at a result point.
@@ -47,16 +47,16 @@ public:
   //! \param[in] fe Finite element data at current point
   //! \param[in] X Cartesian coordinates of current point
   //! \param[in] MNPC Nodal point correspondance for the basis function values
-  virtual bool evalSol(Vector& s, const FiniteElement& fe,
-                       const Vec3& X, const std::vector<int>& MNPC) const;
+  bool evalSol(Vector& s, const FiniteElement& fe,
+               const Vec3& X, const std::vector<int>& MNPC) const override;
 
 protected:
   //! \brief Evaluates the thermal strain at current integration point.
   //! \param[in] eT Element temperature vector
   //! \param[in] N Basis function values at current point
   //! \param[in] X Cartesian coordinates of current integration point
-  virtual double getThermalStrain(const Vector& eT, const Vector& N,
-                                  const Vec3& X) const;
+  double getThermalStrain(const Vector& eT, const Vector& N,
+                          const Vec3& X) const override;
 
   //! \brief Calculates integration point initial strain force contributions.
   //! \param elMat Element matrices for current element
@@ -65,9 +65,9 @@ protected:
   //! \param[in] C Constitutive matrix
   //! \param[in] X Cartesian coordinates of current point
   //! \param[in] detJW Jacobian determinant times integration point weight
-  virtual bool formInitStrainForces(ElmMats& elMat, const Vector& N,
-                                    const Matrix& B, const Matrix& C,
-                                    const Vec3& X, double detJW) const;
+  bool formInitStrainForces(ElmMats& elMat, const Vector& N,
+                            const Matrix& B, const Matrix& C,
+                            const Vec3& X, double detJW) const override;
 
 private:
   Vector myTempVec; //!< Current temperature at nodal points
