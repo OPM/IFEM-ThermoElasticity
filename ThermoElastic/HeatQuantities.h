@@ -45,7 +45,7 @@ public:
                        const TimeDomain& time,
                        const Vec3& X, const Vec3& normal) const
   {
-    HE& problem = static_cast<HE&>(myProblem);
+    const HE& problem = static_cast<const HE&>(myProblem);
     ElmNorm& elmNorm = static_cast<ElmNorm&>(elmInt);
 
     const Material* mat = problem.getMaterial();

@@ -169,7 +169,7 @@ bool HeatEquationNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
                                 const Vec3& X) const
 {
   ElmNorm& pnorm = static_cast<ElmNorm&>(elmInt);
-  HeatEquation& hep = static_cast<HeatEquation&>(myProblem);
+  const HeatEquation& hep = static_cast<const HeatEquation&>(myProblem);
   const Material* mat = hep.getMaterial();
 
   // Evaluate the FE temperature and thermal conductivity at current point

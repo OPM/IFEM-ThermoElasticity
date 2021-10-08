@@ -219,7 +219,7 @@ public:
   }
 
   //! \brief Computes the solution for the current time step.
-  bool solveStep(TimeStep& tp)
+  bool solveStep(const TimeStep& tp)
   {
     PROFILE1("SIMHeatEquation::solveStep");
 
