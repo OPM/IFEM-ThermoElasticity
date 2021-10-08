@@ -91,8 +91,8 @@ public:
   //! \param[in] fe Finite element data of current integration point
   //! \param[in] time Parameters for nonlinear and time-dependent simulations
   //! \param[in] X Cartesian coordinates of current integration point
-  virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
-                       const TimeDomain& time, const Vec3& X) const;
+  bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+               const TimeDomain& time, const Vec3& X) const override;
 
   using IntegrandBase::evalBou;
   //! \brief Evaluates the integrand at a boundary point.
@@ -100,8 +100,8 @@ public:
   //! \param[in] fe Finite element data of current integration point
   //! \param[in] X Cartesian coordinates of current integration point
   //! \param[in] normal Boundary normal vector at current integration point
-  virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
-                       const Vec3& X, const Vec3& normal) const;
+  bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
+               const Vec3& X, const Vec3& normal) const override;
 
   //! \brief Advance time stepping scheme.
   void advanceStep() { bdf.advanceStep(); }
@@ -121,11 +121,11 @@ public:
 
   //! \brief Returns the name of the primary solution field.
   //! \param[in] prefix Name prefix
-  virtual std::string getField1Name(size_t, const char* prefix) const;
+  std::string getField1Name(size_t, const char* prefix) const override;
   //! \brief Returns the name of a secondary solution field component.
   //! \param[in] i Field component index
   //! \param[in] prefix Name prefix for all components
-  virtual std::string getField2Name(size_t i, const char* prefix) const;
+  std::string getField2Name(size_t i, const char* prefix) const override;
 
   //! \brief Sets the function of the initial temperature field.
   void setInitialTemperature(const RealFunc* f)  { init = f; }
@@ -136,13 +136,13 @@ public:
   //! \brief Returns a pointer to an Integrand for boundary force evaluation.
   //! \note The Integrand is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer returned.
-  virtual ForceBase* getForceIntegrand(const Vec3*, AnaSol* = nullptr) const;
+  ForceBase* getForceIntegrand(const Vec3*, AnaSol* = nullptr) const override;
 
   //! \brief Returns a pointer to an Integrand for solution norm evaluation.
   //! \note The Integrand is allocated dynamically and has to be deleted
   //! manually when leaving the scope of the pointer returned.
   //! \param[in] asol Pointer to analytical solution field (optional)
-  virtual NormBase* getNormIntegrand(AnaSol* asol = nullptr) const;
+  NormBase* getNormIntegrand(AnaSol* asol = nullptr) const override;
 
   //! \brief Returns the initial temperature in a point.
   //! \param[in] X The coordinate of the point.
@@ -177,22 +177,22 @@ public:
   //! \param elmInt The local integral object to receive the contributions
   //! \param[in] fe Finite element data of current integration point
   //! \param[in] X Cartesian coordinates of current integration point
-  virtual bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
-                       const Vec3& X) const;
+  bool evalInt(LocalIntegral& elmInt, const FiniteElement& fe,
+               const Vec3& X) const override;
 
   //! \brief Returns the number of norm groups or size of a specified group.
   //! \param[in] group The norm group to return the size of
   //! (if zero, return the number of groups)
-  virtual size_t getNoFields(int group = 0) const;
+  size_t getNoFields(int group = 0) const override;
 
   //! \brief Returns the name of a norm quantity.
   //! \param[in] i The norm group (one-based index)
   //! \param[in] j The norm entry (one-based index)
   //! \param[in] prefix Common prefix for all norm names
-  virtual std::string getName(size_t i, size_t j, const char* prefix) const;
+  std::string getName(size_t i, size_t j, const char* prefix) const override;
 
   //! \brief Returns whether a norm quantity stores element contributions.
-  virtual bool hasElementContributions(size_t i, size_t j) const;
+  bool hasElementContributions(size_t i, size_t j) const override;
 
 private:
   AnaSol* anasol; //!< Analytical solution

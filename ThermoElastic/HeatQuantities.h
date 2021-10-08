@@ -41,9 +41,9 @@ public:
   //! \param[in] time Parameters for nonlinear and time-dependent simulations
   //! \param[in] X Cartesian coordinates of current integration point
   //! \param[in] normal Boundary normal vector at current integration point
-  virtual bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
-                       const TimeDomain& time,
-                       const Vec3& X, const Vec3& normal) const
+  bool evalBou(LocalIntegral& elmInt, const FiniteElement& fe,
+               const TimeDomain& time,
+               const Vec3& X, const Vec3& normal) const override
   {
     const HE& problem = static_cast<const HE&>(myProblem);
     ElmNorm& elmNorm = static_cast<ElmNorm&>(elmInt);
@@ -65,7 +65,7 @@ public:
   }
 
   //! \brief Returns the number of force components.
-  virtual size_t getNoComps() const { return 1; }
+  size_t getNoComps() const override { return 1; }
 };
 
 
