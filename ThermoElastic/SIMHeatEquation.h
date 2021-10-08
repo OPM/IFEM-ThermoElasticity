@@ -52,7 +52,7 @@ class SIMHeatEquation : public Dim, public SIMsolution
     //! \brief Default constructor.
     BoundaryFlux(int c = 0) : code(c), timeIncr(1) {}
     //! \brief Constructor naming the topology set for force calculation.
-    BoundaryFlux(const std::string& s) : set(s), code(0), timeIncr(1) {}
+    explicit BoundaryFlux(const std::string& s) : set(s), code(0), timeIncr(1) {}
   };
 
   //! \brief Helper class for searching among BoundaryForce objects.
@@ -61,7 +61,7 @@ class SIMHeatEquation : public Dim, public SIMsolution
     int myCode; //!< The property code to compare with
   public:
     //! \brief Constructor initializing the property code to search for.
-    hasCode(int code) : myCode(abs(code)) {}
+    explicit hasCode(int code) : myCode(abs(code)) {}
     //! \brief Returns \e true if the BoundaryForce \a b has the code \a myCode.
     bool operator()(const BoundaryFlux& b) { return abs(b.code) == myCode; }
   };
@@ -76,7 +76,7 @@ public:
 
   //! \brief Default constructor.
   //! \param[in] order Order of temporal integration (1 or 2)
-  SIMHeatEquation(int order) :
+  explicit SIMHeatEquation(int order) :
     Dim(1), heq(Dim::dimension,order), wdc(Dim::dimension)
   {
     Dim::myProblem = &heq;

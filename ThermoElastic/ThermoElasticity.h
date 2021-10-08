@@ -30,7 +30,7 @@ public:
   //! \brief Default constructor.
   //! \param[in] n Number of spatial dimensions
   //! \param[in] axS \e If \e true, an axisymmetric 3D formulation is assumed
-  ThermoElasticity(unsigned short int n, bool axS = false);
+  explicit ThermoElasticity(unsigned short int n, bool axS = false);
   //! \brief Empty destructor.
   virtual ~ThermoElasticity() {}
 
