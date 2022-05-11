@@ -20,9 +20,8 @@ list(APPEND CHECK_SOURCES ${ELASTICITY_DIR}/Linear/AnalyticSolutions.C)
 # Unit tests
 IFEM_add_test_app(${PROJECT_SOURCE_DIR}/../Test/*.C
                   ${PROJECT_SOURCE_DIR}/../Test
-                  ThermoElasticity
+                  ThermoElasticity 0
                   ThermoElastic Elasticity
                   IFEMAppCommon ${IFEM_LIBRARIES})
 set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
-set(UNIT_TEST_NUMBER ${UNIT_TEST_NUMBER} PARENT_SCOPE)
 set(CHECK_SOURCES ${CHECK_SOURCES} PARENT_SCOPE)
