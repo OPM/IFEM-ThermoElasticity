@@ -83,7 +83,6 @@ list(APPEND TEST_APPS HeatEquation ThermoElasticity)
 
 if(IFEM_COMMON_APP_BUILD)
   set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
-  set(UNIT_TEST_NUMBER ${UNIT_TEST_NUMBER} PARENT_SCOPE)
 else()
   add_check_target()
 endif()
