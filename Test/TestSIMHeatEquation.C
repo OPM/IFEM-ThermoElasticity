@@ -13,6 +13,7 @@
 #include "SIMHeatEquation.h"
 #include "SIM2D.h"
 #include "HeatEquation.h"
+#include "LinIsotropic.h"
 
 #include "gtest/gtest.h"
 

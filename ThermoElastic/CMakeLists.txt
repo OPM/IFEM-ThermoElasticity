@@ -8,6 +8,7 @@ include_directories(${PROJECT_SOURCE_DIR})
 
 # Common ThermoElastic sources
 set(TE_SOURCES HeatEquation.C
+               SIMHeatEquation.C
                ThermoElasticity.C)
 
 add_library(ThermoElastic STATIC ${TE_SOURCES}
