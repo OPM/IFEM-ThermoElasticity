@@ -46,10 +46,10 @@ public:
   //! \brief Saves the converged results of a given time step to VTF file.
   //! \param[in] tp Time stepping parameters
   //! \param[in] nBlock Running VTF block counter
-  virtual bool saveStep(const TimeStep& tp, int& nBlock);
+  bool saveStep(const TimeStep& tp, int& nBlock) override;
 
   //! \brief Computes the solution for the current time step.
-  virtual bool solveStep(TimeStep& tp);
+  bool solveStep(TimeStep& tp) override;
 
   //! \brief Returns the initial temperature field.
   const RealFunc* getInitialTemperature() const;
@@ -58,14 +58,14 @@ protected:
   using SIMElasticityWrap<Dim>::parse;
   //! \brief Parses a data section from an XML element.
   //! \param[in] elem The XML element to parse
-  virtual bool parse(const TiXmlElement* elem);
+  bool parse(const TiXmlElement* elem) override;
 
   using SIMElasticityWrap<Dim>::parseAnaSol;
   //! \brief Parses the analytical solution from an XML element.
-  virtual bool parseAnaSol(const TiXmlElement* elem);
+  bool parseAnaSol(const TiXmlElement* elem) override;
 
   //! \brief Returns the actual integrand.
-  virtual Elasticity* getIntegrand();
+  Elasticity* getIntegrand() override;
 
 private:
   double startT; //!< Start time for the elasticity solver
