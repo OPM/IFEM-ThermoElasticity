@@ -16,6 +16,9 @@
 
 #include "SIMCoupled.h"
 
+#include "ASMbase.h"
+#include "Function.h"
+
 
 //! \brief Struct describing a coupling.
 struct CouplingDef {
