@@ -16,16 +16,10 @@
 
 #include "SIMElasticityWrap.h"
 #include "SIMconfigure.h"
-#include "ElasticityUtils.h"
-#include "ThermoElasticity.h"
-#include "Linear/AnalyticSolutions.h"
-#include "ASMstruct.h"
-#include "IFEM.h"
-#include "Profiler.h"
-#include "TimeStep.h"
-#include "Utilities.h"
 
-#include "tinyxml.h"
+class RealFunc;
+class TimeStep;
+namespace tinyxml2 { class XMLElement; }
 
 
 /*!
@@ -58,11 +52,11 @@ protected:
   using SIMElasticityWrap<Dim>::parse;
   //! \brief Parses a data section from an XML element.
   //! \param[in] elem The XML element to parse
-  bool parse(const TiXmlElement* elem) override;
+  bool parse(const tinyxml2::XMLElement* elem) override;
 
   using SIMElasticityWrap<Dim>::parseAnaSol;
   //! \brief Parses the analytical solution from an XML element.
-  bool parseAnaSol(const TiXmlElement* elem) override;
+  bool parseAnaSol(const tinyxml2::XMLElement* elem) override;
 
   //! \brief Returns the actual integrand.
   Elasticity* getIntegrand() override;

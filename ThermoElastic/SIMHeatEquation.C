@@ -31,7 +31,7 @@
 #include "TimeStep.h"
 #include "Utilities.h"
 
-#include <tinyxml.h>
+#include <tinyxml2.h>
 #include <fstream>
 
 
@@ -64,10 +64,10 @@ SIMHeatEquation<Dim,Integrand>::~SIMHeatEquation ()
 
 
 template<class Dim, class Integrand>
-bool SIMHeatEquation<Dim,Integrand>::parse (const TiXmlElement* elem)
+bool SIMHeatEquation<Dim,Integrand>::parse (const tinyxml2::XMLElement* elem)
 {
   if (!strcasecmp(elem->Value(),"thermoelasticity")) {
-    const TiXmlElement* child = elem->FirstChildElement();
+    const tinyxml2::XMLElement* child = elem->FirstChildElement();
     for (; child; child = child->NextSiblingElement())
       if (!strcasecmp(child->Value(),"isotropic")) {
         int code = this->parseMaterialSet(child,mVec.size());
@@ -82,7 +82,7 @@ bool SIMHeatEquation<Dim,Integrand>::parse (const TiXmlElement* elem)
   else if (strcasecmp(elem->Value(),inputContext.c_str()))
     return this->Dim::parse(elem);
 
-  const TiXmlElement* child = elem->FirstChildElement();
+  const tinyxml2::XMLElement* child = elem->FirstChildElement();
   for (; child; child = child->NextSiblingElement())
     if (!strcasecmp(child->Value(),"anasol")) {
       IFEM::cout <<"\tAnalytical solution: Expression"<< std::endl;
