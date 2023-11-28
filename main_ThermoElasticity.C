@@ -22,9 +22,10 @@
 #include "HeatEquation.h"
 #include "TimeIntUtils.h"
 #include "Profiler.h"
-#include <stdlib.h>
+#include "Elasticity.h"
+#include "ElasticityUtils.h"
+
 #include <string.h>
-#include <ctype.h>
 
 
 //! \brief Setup and launch the simulation.

@@ -23,11 +23,10 @@
 #include "IFEM.h"
 #include "SIM2D.h"
 #include "SIM3D.h"
-#include "SIMconfigure.h"
 #include "TimeStep.h"
 #include "Utilities.h"
 
-#include "tinyxml.h"
+#include "tinyxml2.h"
 
 
 template<class Dim>
@@ -113,12 +112,12 @@ const RealFunc* SIMThermoElasticity<Dim>::getInitialTemperature () const
 
 
 template<class Dim>
-bool SIMThermoElasticity<Dim>::parse (const TiXmlElement* elem)
+bool SIMThermoElasticity<Dim>::parse (const tinyxml2::XMLElement* elem)
 {
   if (strcasecmp(elem->Value(),"thermoelasticity"))
     return this->Dim::parse(elem);
 
-  const TiXmlElement* child = elem->FirstChildElement();
+  const tinyxml2::XMLElement* child = elem->FirstChildElement();
   for (; child; child = child->NextSiblingElement())
     if (!strcasecmp(child->Value(),"start"))
       if (utl::getAttribute(child,"time",startT))
@@ -129,7 +128,7 @@ bool SIMThermoElasticity<Dim>::parse (const TiXmlElement* elem)
 
 
 template<class Dim>
-bool SIMThermoElasticity<Dim>::parseAnaSol (const TiXmlElement* elem)
+bool SIMThermoElasticity<Dim>::parseAnaSol (const tinyxml2::XMLElement* elem)
 {
   IFEM::cout <<"  Parsing <"<< elem->Value() <<">"<< std::endl;
 
