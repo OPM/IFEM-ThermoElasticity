@@ -160,7 +160,7 @@ bool SIMThermoElasticity<Dim>::parseAnaSol (const tinyxml2::XMLElement* elem)
 
 
 template<class Dim>
-Elasticity* SIMThermoElasticity<Dim>::getIntegrand ()
+ElasticBase* SIMThermoElasticity<Dim>::getIntegrand ()
 {
   if (!Dim::myProblem)
   {
@@ -169,12 +169,12 @@ Elasticity* SIMThermoElasticity<Dim>::getIntegrand ()
     else
       Dim::myProblem = new ThermoElasticity(Dim::dimension);
   }
-  return dynamic_cast<Elasticity*>(Dim::myProblem);
+  return dynamic_cast<ElasticBase*>(Dim::myProblem);
 }
 
 
 template<class Dim>
-int SolverConfigurator<SIMThermoElasticity<Dim>>::
+int SolverConfigurator< SIMThermoElasticity<Dim> >::
 setup (SIMThermoElasticity<Dim>& elasim, const bool&, char* infile)
 {
   // Read the input file
@@ -195,7 +195,7 @@ setup (SIMThermoElasticity<Dim>& elasim, const bool&, char* infile)
 }
 
 
-template class SIMThermoElasticity<SIM2D>;
-template struct SolverConfigurator<SIMThermoElasticity<SIM2D>>;
-template class SIMThermoElasticity<SIM3D>;
-template struct SolverConfigurator<SIMThermoElasticity<SIM3D>>;
+template class SIMThermoElasticity< SIM2D >;
+template struct SolverConfigurator< SIMThermoElasticity<SIM2D> >;
+template class SIMThermoElasticity< SIM3D >;
+template struct SolverConfigurator< SIMThermoElasticity<SIM3D> >;
