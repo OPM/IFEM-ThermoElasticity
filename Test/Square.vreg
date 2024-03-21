@@ -7,7 +7,7 @@ Step 1
     Displacement: 'Solution'
     Scalar: 'u_x'
     Scalar: 'u_y'
-    Scalar: 'temperature'
+    Scalar: 'theta'
 Step 2
   Element block 1
     289 nodes
@@ -21,7 +21,7 @@ Step 2
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 3
@@ -37,7 +37,7 @@ Step 3
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 4
@@ -53,7 +53,7 @@ Step 4
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 5
@@ -69,7 +69,7 @@ Step 5
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 6
@@ -85,7 +85,7 @@ Step 6
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 7
@@ -101,7 +101,7 @@ Step 7
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 8
@@ -117,7 +117,7 @@ Step 8
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 9
@@ -133,7 +133,7 @@ Step 9
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 10
@@ -149,7 +149,7 @@ Step 10
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
 Step 11
@@ -165,6 +165,6 @@ Step 11
     Scalar: 'von Mises stress'
     Scalar: 'P1'
     Scalar: 'P2'
-    Scalar: 'temperature'
+    Scalar: 'theta'
     Vector: 'Principal direction P1'
     Vector: 'Principal direction P2'
