@@ -59,7 +59,7 @@ protected:
   bool parseAnaSol(const tinyxml2::XMLElement* elem) override;
 
   //! \brief Returns the actual integrand.
-  Elasticity* getIntegrand() override;
+  ElasticBase* getIntegrand() override;
 
 private:
   double startT; //!< Start time for the elasticity solver
