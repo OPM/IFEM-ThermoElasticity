@@ -136,7 +136,7 @@ bool HeatEquation::WeakDirichlet::evalBou (LocalIntegral& elmInt,
 
   for (size_t i = 1; i <= fe.N.size(); i++) {
     for (size_t j = 1; j <= fe.N.size(); j++) {
-      double dT = normal * fe.dNdX.getRow(j);
+      double dT = normal * Vec3(fe.dNdX.getRow(j));
       A(i,j) += (kappa*dT+envT*envCond)*fe.N(i)*fe.detJxW;
     }
     b(i) += q*fe.N(i)*fe.detJxW;
@@ -177,45 +177,47 @@ bool HeatEquationNorm::evalInt (LocalIntegral& elmInt, const FiniteElement& fe,
   double kappa = mat ? mat->getThermalConductivity(Uh) : 1.0;
 
   // Evaluate the FE heat flux vector, gradU = dNdX^T * eV
-  Vector gradUh;
-  if (!fe.dNdX.multiply(elmInt.vec.front(),gradUh,true))
+  RealArray grad;
+  if (!fe.dNdX.multiply(elmInt.vec.front(),grad,true))
     return false;
+  Vec3 gradUh(grad);
 
   size_t ip = 0;
   // Integrate the L2 norm, (U^h, U^h)
   pnorm[ip++] += Uh*Uh*fe.detJxW;
 
   // Integrate the energy norm, a(U^h,U^h)
-  pnorm[ip++] = 0.5*kappa*gradUh.dot(gradUh)*fe.detJxW;
+  pnorm[ip++] = 0.5*kappa*gradUh*gradUh*fe.detJxW;
   ip++; // Currently no external energy yet
 
   if (anasol && anasol->getScalarSol()) {
     double T = (*anasol->getScalarSol())(X);
+    double error = T - Uh;
     pnorm[ip++] += T*T*fe.detJxW; // L2 norm of analytical solution
-    pnorm[ip++] += (T-Uh)*(T-Uh)*fe.detJxW; // L2 norm of error
+    pnorm[ip++] += error*error*fe.detJxW; // L2 norm of error
   }
 
   if (anasol && anasol->getScalarSecSol()) {
     Vec3 dT = (*anasol->getScalarSecSol())(X);
+    Vec3 error = dT - gradUh;
     pnorm[ip++] += 0.5*kappa*dT*dT*fe.detJxW;
-    pnorm[ip++] += 0.5*kappa*(dT-gradUh)*(dT-gradUh)*fe.detJxW;
+    pnorm[ip++] += 0.5*kappa*error*error*fe.detJxW;
   }
-
 
   // TODO: Add energy-norm of exact error based on analytical solution
   for (const Vector& psol : pnorm.psol)
     if (!psol.empty())
     {
       // Evaluate projected heat flux field
-      Vector gradUr(nrcmp);
+      Vec3 gradUr;
       for (size_t j = 0; j < nrcmp; j++)
         gradUr[j] = psol.dot(fe.N,j,nrcmp);
+      Vec3 error = gradUr - gradUh;
 
       // Integrate the energy norm a(U^r,U^r)
-      pnorm[ip++] += 0.5*kappa*gradUr.dot(gradUr)*fe.detJxW;
+      pnorm[ip++] += 0.5*kappa*gradUr*gradUr*fe.detJxW;
       // Integrate the estimated error in energy norm a(U^r-U^h,U^r-U^h)
-      Vector error = gradUr - gradUh;
-      pnorm[ip++] += 0.5*kappa*error.dot(error)*fe.detJxW;
+      pnorm[ip++] += 0.5*kappa*error*error*fe.detJxW;
     }
 
   return true;

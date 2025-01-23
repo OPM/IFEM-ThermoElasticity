@@ -77,7 +77,7 @@ bool ThermoElasticity::formInitStrainForces (ElmMats& elMat, const Vector& N,
   eps = this->getThermalStrain(elMat.vec.back(),N,X)*detJW;
 
   // Stresses due to thermal expansion
-  Vector sigma0;
+  RealArray sigma0;
   if (!C.multiply(eps,sigma0))
     return false;
 
