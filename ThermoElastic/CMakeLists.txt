@@ -20,10 +20,10 @@ endforeach()
 list(APPEND CHECK_SOURCES ${ELASTICITY_DIR}/Linear/AnalyticSolutions.C)
 
 # Unit tests
-IFEM_add_test_app(${PROJECT_SOURCE_DIR}/../Test/*.C
-                  ${PROJECT_SOURCE_DIR}/../Test
-                  ThermoElasticity 0
-                  ThermoElastic Elasticity
-                  IFEMAppCommon ${IFEM_LIBRARIES})
+IFEM_add_test_app(SOURCES ${PROJECT_SOURCE_DIR}/../Test/*.C
+                  WORKDIR ${PROJECT_SOURCE_DIR}/../Test
+                  NAME ThermoElasticity
+                  LIBRARIES ThermoElastic Elasticity
+                            IFEMAppCommon ${IFEM_LIBRARIES})
 set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
 set(CHECK_SOURCES ${CHECK_SOURCES} PARENT_SCOPE)
