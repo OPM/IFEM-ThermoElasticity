@@ -13,10 +13,11 @@
 #include "SIMThermoElasticity.h"
 #include "SIM2D.h"
 
-#include "gtest/gtest.h"
+#include <catch2/catch_test_macros.hpp>
 
-TEST(TestSIMThermoElasticity, Parse)
+
+TEST_CASE("TestSIMThermoElasticity.Parse")
 {
   SIMThermoElasticity<SIM2D> sim;
-  EXPECT_TRUE(sim.read("Square.xinp"));
+  REQUIRE(sim.read("Square.xinp"));
 }
