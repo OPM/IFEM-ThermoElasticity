@@ -15,11 +15,12 @@
 #include "SIMThermalCoupling.h"
 #include "HeatEquation.h"
 
-#include "gtest/gtest.h"
+#include <catch2/catch_test_macros.hpp>
 
-TEST(TestSIMThermalCoupling, Dependencies)
+
+TEST_CASE("TestSIMThermalCoupling.Dependencies")
 {
-  typedef SIMHeatEquation<SIM2D,HeatEquation> Heat2D;
+  using Heat2D = SIMHeatEquation<SIM2D,HeatEquation>;
   Heat2D sim(1);
   sim.initSol();
   Vector dummy;
@@ -27,6 +28,6 @@ TEST(TestSIMThermalCoupling, Dependencies)
   SIMThermalCoupling<Heat2D,Heat2D> couple1(sim, sim, {CouplingDef("foobar", 2, 1)});
   couple1.setupDependencies();
 
-  ASSERT_TRUE(sim.getDependentField("temperature1") != nullptr);
-  ASSERT_TRUE(sim.getDependentField("foobar") != nullptr);
+  REQUIRE(sim.getDependentField("temperature1") != nullptr);
+  REQUIRE(sim.getDependentField("foobar") != nullptr);
 }

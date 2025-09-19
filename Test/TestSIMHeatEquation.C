@@ -15,17 +15,21 @@
 #include "HeatEquation.h"
 #include "LinIsotropic.h"
 
-#include "gtest/gtest.h"
+#include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 
-TEST(TestSIMHeatEquation, Parse)
+using Catch::Matchers::WithinRel;
+
+
+TEST_CASE("TestSIMHeatEquation.Parse")
 {
   SIMHeatEquation<SIM2D,HeatEquation> sim(2);
-  EXPECT_TRUE(sim.read("Square.xinp"));
+  REQUIRE(sim.read("Square.xinp"));
 
   const HeatEquation& heat = static_cast<const HeatEquation&>(*sim.getProblem());
   const LinIsotropic& mat = static_cast<const LinIsotropic&>(*heat.getMaterial());
 
-  ASSERT_FLOAT_EQ(mat.getThermalExpansion(1.0), 1.2e-7);
-  ASSERT_FLOAT_EQ(mat.getHeatCapacity(1.0), 1.0);
-  ASSERT_FLOAT_EQ(mat.getThermalConductivity(1.0), 0.1);
+  REQUIRE_THAT(mat.getThermalExpansion(1.0), WithinRel(1.2e-7));
+  REQUIRE_THAT(mat.getHeatCapacity(1.0), WithinRel(1.0));
+  REQUIRE_THAT(mat.getThermalConductivity(1.0), WithinRel(0.1));
 }
