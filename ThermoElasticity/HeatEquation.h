@@ -104,7 +104,7 @@ public:
                const Vec3& X, const Vec3& normal) const override;
 
   //! \brief Advance time stepping scheme.
-  void advanceStep() { bdf.advanceStep(); }
+  bool advanceStep() override { return bdf.advanceStep(); }
 
   //! \brief Defines the material properties.
   void setMaterial(Material* material) { mat = material; }
