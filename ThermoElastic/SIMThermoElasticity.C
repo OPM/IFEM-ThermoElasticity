@@ -14,7 +14,7 @@
 #include "SIMThermoElasticity.h"
 
 #include "ElasticityUtils.h"
-#include "Linear/AnalyticSolutions.h"
+#include "../Linear/AnalyticSolutions.h"
 #include "SIMElasticityWrap.h"
 #include "ThermoElasticity.h"
 

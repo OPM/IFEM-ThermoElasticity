@@ -13,7 +13,14 @@ if(NOT TARGET IFEM)
   endif()
 endif()
 
-ifem_add_dependency_dir(APP Elasticity TARGET Elasticity)
+ifem_add_dependency_dir(
+  APP
+    Elasticity
+  TARGET
+    Elasticity
+  DIR
+    Elasticity
+)
 
 if(NOT TARGET ThermoElastic)
   add_subdirectory(ThermoElastic)
@@ -118,8 +125,8 @@ endif()
 ifem_add_doc_target(
   TARGET
     ThermoElasticity
-  EXTRA_DIRS
-    ${Elasticity_DIRECTORY}
+  DEPENDENCIES
+    Elasticity
 )
 
 # Installation
