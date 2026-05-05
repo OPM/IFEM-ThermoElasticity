@@ -10,7 +10,7 @@ ifem_add_library(
     SIMHeatEquation.C
     SIMThermoElasticity.C
     ThermoElasticity.C
-    ${Elasticity_DIRECTORY}/Linear/AnalyticSolutions.C
+    ${Elasticity_DIRECTORY}/../Linear/AnalyticSolutions.C
   LIBRARIES
     IFEMAppCommon
     Elasticity
