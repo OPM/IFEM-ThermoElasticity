@@ -22,8 +22,8 @@ ifem_add_dependency_dir(
     Elasticity
 )
 
-if(NOT TARGET ThermoElastic)
-  add_subdirectory(ThermoElastic)
+if(NOT TARGET IFEM::ThermoElasticity)
+  add_subdirectory(ThermoElasticity)
 endif()
 
 ifem_add_application(
@@ -32,7 +32,7 @@ ifem_add_application(
   SOURCES
     main_ThermoElasticity.C
   LIBRARIES
-    ThermoElastic
+    IFEM::ThermoElasticity
 )
 
 ifem_add_application(
@@ -41,7 +41,7 @@ ifem_add_application(
   SOURCES
     main_HeatEquation.C
   LIBRARIES
-    ThermoElastic
+    IFEM::ThermoElasticity
 )
 
 # Testing
@@ -131,4 +131,10 @@ ifem_add_doc_target(
 
 # Installation
 include(GNUInstallDirs)
-install(TARGETS HeatEquation ThermoElasticity DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(
+  TARGETS
+    HeatEquation
+    ThermoElasticity
+  DESTINATION
+    ${CMAKE_INSTALL_BINDIR}
+)
