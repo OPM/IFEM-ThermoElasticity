@@ -5,6 +5,8 @@ project(ThermoElastic LANGUAGES C CXX)
 ifem_add_library(
   NAME
     ThermoElastic
+  ALIAS
+    IFEM::ThermoElasticity
   SOURCES
     HeatEquation.C
     SIMHeatEquation.C
@@ -14,6 +16,11 @@ ifem_add_library(
   LIBRARIES
     Elasticity
     IFEM::AppUtils
+)
+set_target_properties(ThermoElastic
+  PROPERTIES
+  ARCHIVE_OUTPUT_NAME
+    ThermoElasticity
 )
 
 target_include_directories(ThermoElastic INTERFACE ${PROJECT_SOURCE_DIR})
@@ -29,7 +36,7 @@ ifem_add_test_app(
   WORKDIR
     ${PROJECT_SOURCE_DIR}/../Test
   LIBRARIES
-    ThermoElastic
+    IFEM::ThermoElasticity
 )
 
 set(TEST_APPS ${TEST_APPS} PARENT_SCOPE)
