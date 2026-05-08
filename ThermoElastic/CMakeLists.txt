@@ -12,8 +12,8 @@ ifem_add_library(
     ThermoElasticity.C
     ${Elasticity_DIRECTORY}/../Linear/AnalyticSolutions.C
   LIBRARIES
-    IFEMAppCommon
     Elasticity
+    IFEM::AppUtils
 )
 
 target_include_directories(ThermoElastic INTERFACE ${PROJECT_SOURCE_DIR})
