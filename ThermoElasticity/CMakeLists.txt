@@ -14,8 +14,8 @@ ifem_add_library(
     ThermoElasticity.C
     ${Elasticity_DIRECTORY}/../Linear/AnalyticSolutions.C
   LIBRARIES
-    Elasticity
     IFEM::AppUtils
+    IFEM::Elasticity
 )
 set_target_properties(ThermoElastic
   PROPERTIES
