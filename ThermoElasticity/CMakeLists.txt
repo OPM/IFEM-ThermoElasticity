@@ -7,6 +7,8 @@ ifem_add_library(
     ThermoElastic
   ALIAS
     IFEM::ThermoElasticity
+  ARCHIVE_NAME
+    ThermoElasticity
   SOURCES
     HeatEquation.C
     SIMHeatEquation.C
@@ -16,11 +18,6 @@ ifem_add_library(
   LIBRARIES
     IFEM::AppUtils
     IFEM::Elasticity
-)
-set_target_properties(ThermoElastic
-  PROPERTIES
-  ARCHIVE_OUTPUT_NAME
-    ThermoElasticity
 )
 
 target_include_directories(ThermoElastic INTERFACE ${PROJECT_SOURCE_DIR})
