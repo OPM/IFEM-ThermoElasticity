@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.22)
 
 project(ThermoElastic LANGUAGES C CXX)
 
+get_target_property(Elasticity_DIRECTORY IFEM::Elasticity SOURCE_DIR)
+
 ifem_add_library(
   NAME
     ThermoElastic
