@@ -16,10 +16,10 @@ endif()
 ifem_add_dependency_dir(
   APP
     Elasticity
-  TARGET
-    Elasticity
   DIR
     Elasticity
+  TARGET
+    IFEM::Elasticity
 )
 
 if(NOT TARGET IFEM::ThermoElasticity)
