@@ -26,9 +26,9 @@ Number of unknowns    648
 L2-norm            : 1.08942e-05
 Max X-displacement : 1.64432e-05
 Max Y-displacement : 1.64432e-05
-Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.15868
-Exact norm  |u|   = a(u,u)^0.5       : -3.02129
-Exact error a(e,e)^0.5, e=u-u^h      : -1.42426
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 3.15868
+Exact norm  |u|   = a(u,u)^0.5       : 3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : 1.42426
 Exact relative error (%) : 47.1407
   step = 7  time = 0.7
   Temperature summary: L2-norm         : 315.114
@@ -36,9 +36,9 @@ Exact relative error (%) : 47.1407
 L2-norm            : 1.16759e-05
 Max X-displacement : 1.76809e-05
 Max Y-displacement : 1.76809e-05
-Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.1293
-Exact norm  |u|   = a(u,u)^0.5       : -3.02129
-Exact error a(e,e)^0.5, e=u-u^h      : -1.24798
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 3.1293
+Exact norm  |u|   = a(u,u)^0.5       : 3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : 1.24798
 Exact relative error (%) : 41.3064
   step = 8  time = 0.8
   Temperature summary: L2-norm         : 317.129
@@ -46,9 +46,9 @@ Exact relative error (%) : 41.3064
 L2-norm            : 1.23652e-05
 Max X-displacement : 1.87761e-05
 Max Y-displacement : 1.87761e-05
-Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.10262
-Exact norm  |u|   = a(u,u)^0.5       : -3.02129
-Exact error a(e,e)^0.5, e=u-u^h      : -1.09603
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 3.10262
+Exact norm  |u|   = a(u,u)^0.5       : 3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : 1.09603
 Exact relative error (%) : 36.2769
   step = 9  time = 0.9
   Temperature summary: L2-norm         : 318.91
@@ -56,9 +56,9 @@ Exact relative error (%) : 36.2769
 L2-norm            : 1.29733e-05
 Max X-displacement : 1.97444e-05
 Max Y-displacement : 1.97444e-05
-Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.0798
-Exact norm  |u|   = a(u,u)^0.5       : -3.02129
-Exact error a(e,e)^0.5, e=u-u^h      : -0.964189
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 3.0798
+Exact norm  |u|   = a(u,u)^0.5       : 3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : 0.964189
 Exact relative error (%) : 31.9132
   step = 10  time = 1
   Temperature summary: L2-norm         : 320.483
@@ -66,7 +66,7 @@ Exact relative error (%) : 31.9132
 L2-norm            : 1.35096e-05
 Max X-displacement : 2.05997e-05
 Max Y-displacement : 2.05997e-05
-Energy norm |u^h| = a(u^h,u^h)^0.5   : -3.0611
-Exact norm  |u|   = a(u,u)^0.5       : -3.02129
-Exact error a(e,e)^0.5, e=u-u^h      : -0.849075
+Energy norm |u^h| = a(u^h,u^h)^0.5   : 3.0611
+Exact norm  |u|   = a(u,u)^0.5       : 3.02129
+Exact error a(e,e)^0.5, e=u-u^h      : 0.849075
 Exact relative error (%) : 28.1031
