@@ -365,7 +365,7 @@ bool SIMHeatEquation<Dim,Integrand>::deSerialize (const SerializeMap& data)
 
 
 template<class Dim, class Integrand>
-void SIMHeatEquation<Dim,Integrand>::preprocessA ()
+bool SIMHeatEquation<Dim,Integrand>::preprocessA ()
 {
   Dim::myInts.insert(std::make_pair(0,Dim::myProblem));
 
@@ -400,6 +400,8 @@ void SIMHeatEquation<Dim,Integrand>::preprocessA ()
       else
         p.pcode = Property::UNDEFINED;
     }
+
+  return true;
 }
 
 
