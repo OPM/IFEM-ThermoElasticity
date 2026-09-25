@@ -140,7 +140,7 @@ protected:
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to couple the weak Dirichlet
   //! integrand to the Robin property codes.
-  void preprocessA() override;
+  bool preprocessA() override;
 
   //! \brief Performs some pre-processing tasks on the FE model.
   //! \details This method is reimplemented to ensure that threading groups are
