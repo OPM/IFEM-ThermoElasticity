@@ -87,6 +87,7 @@ int runSimulator(char* infile, TimeIntegration::Method tIt)
   \arg -nv \a nv : Number of visualization points per knot-span in v-direction
   \arg -nw \a nw : Number of visualization points per knot-span in w-direction
   \arg -hdf5 : Write primary and projected secondary solution to HDF5 file
+  \arg -1D : Use one-parametric simulation driver
   \arg -2D : Use two-parametric simulation driver
 */
 
@@ -95,38 +96,31 @@ int main (int argc, char** argv)
   Profiler prof(argv[0]);
   utl::profiler->start("Initialization");
 
-  char* infile = nullptr;
+  IFEM::Init(argc,argv,"Heat conduction solver");
+
   TimeIntegration::Method tIt = TimeIntegration::BDF2;
   SIMargsBase args("heatequation");
 
-  IFEM::Init(argc,argv,"Heat conduction solver");
-
-  for (int i = 1; i < argc; i++)
-    if (infile == argv[i] || args.parseArg(argv[i]))
-      ;
-    else if (SIMoptions::ignoreOldOptions(argc,argv,i))
-      ; // ignore the obsolete option
-    else if (!strncmp(argv[i],"-msg",4) && i < argc-1)
+  // Lambda function for parsing the options not stored in SIMargsBase.
+  auto external_args = [argc,argv,&tIt](int& i) -> bool
+  {
+    if (!strncmp(argv[i],"-msg",4) && i < argc-1)
       SIMadmin::msgLevel = atoi(argv[++i]);
     else if (!strcmp(argv[i],"-be"))
       tIt = TimeIntegration::BE;
     else if (!strcmp(argv[i],"-bdf2"))
       tIt = TimeIntegration::BDF2;
-    else if (!infile) {
-      infile = argv[i];
-      if (strcasestr(infile,".xinp")) {
-        if (!args.readXML(infile,false))
-          return 1;
-        i = 0;
-      }
-    } else
-      std::cerr <<"  ** Unknown option ignored: "<< argv[i] << std::endl;
+    else
+      return false;
+    return true;
+  };
 
+  char* infile = args.preParse(argc,argv,external_args);
   if (!infile)
   {
     std::cout <<"usage: "<< argv[0]
               <<" <inputfile> [-dense|-spr|-superlu[<nt>]|-samg|-petsc]\n"
-              <<"       [-lag|-spec|-LR] [-2D[pstrain]] [-nGauss <n>]\n"
+              <<"       [-lag|-spec|-LR] [-1D|-2D[pstrain]] [-nGauss <n>]\n"
 	      <<"       [-hdf5] [-vtf <format> [-nviz <nviz>]"
 	      <<" [-nu <nu>] [-nv <nv>] [-nw <nw>]]\n";
     return 0;
@@ -134,6 +128,7 @@ int main (int argc, char** argv)
 
   std::cout <<"\nInput file: "<< infile;
   IFEM::getOptions().print(IFEM::cout) << std::endl;
+
   utl::profiler->stop("Initialization");
 
   if (args.dim == 1)

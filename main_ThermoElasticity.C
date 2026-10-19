@@ -100,35 +100,27 @@ int main (int argc, char** argv)
   Profiler prof(argv[0]);
   utl::profiler->start("Initialization");
 
-  SIMargsBase args("thermoelasticity");
-  char* infile = nullptr;
-  TimeIntegration::Method tIt = TimeIntegration::BDF2;
-  Elasticity::wantPrincipalStress = true;
-
   IFEM::Init(argc,argv,"Thermo-Elasticity solver");
 
-  for (int i = 1; i < argc; i++)
-    if (argv[i] == infile || args.parseArg(argv[i]))
-      ;
-    else if (SIMoptions::ignoreOldOptions(argc,argv,i))
-      ; // ignore the obsolete option
-    else if (!strncmp(argv[i],"-2Dpstra",8)) {
-      args.dim = 2;
+  TimeIntegration::Method tIt = TimeIntegration::BDF2;
+  Elasticity::wantPrincipalStress = true;
+  SIMargsBase args("thermoelasticity");
+
+  // Lambda function for parsing the options not stored in SIMargsBase.
+  auto external_args = [argc,argv,&tIt](int& i) -> bool
+  {
+    if (!strncmp(argv[i],"-2Dpstra",8))
       Elastic::planeStrain = true;
-    } else if (!strcmp(argv[i],"-be"))
+    else if (!strcmp(argv[i],"-be"))
       tIt = TimeIntegration::BE;
     else if (!strcmp(argv[i],"-bdf2"))
       tIt = TimeIntegration::BDF2;
-    else if (!infile) {
-      infile = argv[i];
-      if (strcasestr(infile,".xinp")) {
-        if (!args.readXML(infile,false))
-          return 1;
-        i = 0;
-      }
-    } else
-    std::cerr <<"  ** Unknown option ignored: "<< argv[i] << std::endl;
+    else
+      return false;
+    return true;
+  };
 
+  char* infile = args.preParse(argc,argv,external_args);
   if (!infile)
   {
     std::cout <<"usage: "<< argv[0]
@@ -141,9 +133,10 @@ int main (int argc, char** argv)
 
   std::cout <<"\nInput file: "<< infile;
   IFEM::getOptions().print(IFEM::cout) << std::endl;
+
   utl::profiler->stop("Initialization");
 
-  if (args.dim == 2)
+  if (args.dim == 2 || Elastic::planeStrain)
     return runSimulator<SIM2D>(infile,tIt);
   else
     return runSimulator<SIM3D>(infile,tIt);
